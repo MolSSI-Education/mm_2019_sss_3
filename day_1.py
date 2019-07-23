@@ -84,14 +84,11 @@ def calculate_total_pair_energy(coordinates, box_length, cutoff2):
 
     return e_total
 
-def accept_or_reject(
-    delta_e,        # energy difference between current & previous step
-    beta            # = 1 / T
-    ):
-    '''Accept or reject an given move basing on the Metropolis Criteria.
+def accept_or_reject(delta_e, beta):
+    '''Accept or reject a given move basing on the Metropolis Criteria.
 
     ----------
-    parameters
+    Parameters
     ----------
     delta_e : double
         The energy difference between the current step and the previous step.
@@ -100,7 +97,7 @@ def accept_or_reject(
 
 
     ------
-    return
+    Return
     ------
     accept : bool
         If the move is accepted (true) or rejected (false).
