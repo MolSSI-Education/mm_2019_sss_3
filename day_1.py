@@ -39,17 +39,8 @@ number_particles : float
 box_length : float
     length of the NVT box
 
-volume : float
-    volume of the NVT box that contains all particles
-
 cutoff : float
     reduced cutoff distance
-
-sig_by_cutoff3 : float
-    power to the third of 1/cutoff
-
-sig_by_cutoff9 : float
-    power to the ninth of 1/cutoff
 
 Return
 ------
