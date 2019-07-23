@@ -3,9 +3,25 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 def generate_initial_state(method='random', file_name=None, num_particles=None, box_length=None):
-    # This function generates the initial coordinates of
-    # particles within a box
+	"""
+    This function generates initial coordinates of a LJ fluid simulation  either randomly or from a file.
 
+    Parameters
+    ----------
+
+    method : str
+        What method to use when generating initial configurations. options are 'random' or 'file'
+    box_length : float/int
+        length of simulation box. This is only required if the method is 'random'
+    n_particles : int
+        number of particles in the simulation box. This is only required if the method is 'random'
+    file_name : str
+        string of file to load into the simulation box. This is only required if the method is 'file'
+
+    Returns
+    -------
+    coordinates in numpy array format.
+    """
     if method is 'random':
 
         coordinates = (0.5 - np.random.rand(num_particles, 3)) * box_length
@@ -18,8 +34,21 @@ def generate_initial_state(method='random', file_name=None, num_particles=None, 
 
 
 def lennard_jones_potential(rij2):
-    # This function computes the LJ energy between two particles
+	"""
+    returns the LJ energy for a given rij distance
+    
+    Parameters
+    ----------
 
+    rij2 : float
+        square of distance rij between two particles
+
+    Returns
+    -------
+    
+    energy : float
+        LJ potential energy
+    """
     sig_by_r6 = np.power(1 / rij2, 3)
     sig_by_r12 = np.power(sig_by_r6, 2)
     return 4.0 * (sig_by_r12 - sig_by_r6)
