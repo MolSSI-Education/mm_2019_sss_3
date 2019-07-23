@@ -2,47 +2,98 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-def generate_initial_state(method='random', file_name=None, num_particles=None, box_length=None):
-    # This function generates the initial coordinates of
-    # particles within a box
 
-    if method is 'random':
+def generate_initial_state(method='random',                                                                           
+                           file_name=None,
+                           num_particles=None,
+                           box_length=None):
+	"""
+	This function generates initial coordinates of a LJ fluid simulation  either randomly or from a file.
 
-        coordinates = (0.5 - np.random.rand(num_particles, 3)) * box_length
+	Parameters
+	----------
 
-    elif method is 'file':
+	method : str
+		What method to use when generating initial configurations. options are 'random' or 'file'
+	file_name : str
+		string of file to load into the simulation box. This is only required if the method is 'file'
+	num_particles : int
+		number of particles in the simulation box. This is only required if the method is 'random'
+	box_length : float/int
+		length of simulation box. This is only required if the method is 'random'
 
-        coordinates = np.loadtxt(file_name, skiprows=2, usecols=(1,2,3))
-    
+	Returns
+	-------
+	coordinates : coordinates in numpy array format.
+	"""
+
+	if method is 'random':
+		coordinates = (0.5 - np.random.rand(num_particles, 3)) * box_length
+
+	elif method is 'file':
+
+        coordinates = np.loadtxt(file_name, skiprows=2, usecols=(1, 2, 3))
+
     return coordinates
 
 
 def lennard_jones_potential(rij2):
-    # This function computes the LJ energy between two particles
+	"""
+	returns the LJ energy for a given rij distance
 
-    sig_by_r6 = np.power(1 / rij2, 3)
-    sig_by_r12 = np.power(sig_by_r6, 2)
-    return 4.0 * (sig_by_r12 - sig_by_r6)
+	Parameters
+	----------
+
+	rij2 : float
+		square of distance rij between two particles
+
+	Returns
+	-------
+
+	energy : float
+		LJ potential energy
+	"""
+	sig_by_r6 = np.power(1 / rij2, 3)
+	sig_by_r12 = np.power(sig_by_r6, 2)
+	return 4.0 * (sig_by_r12 - sig_by_r6)
+
+
 
 def calculate_tail_correction(box_length, cutoff, number_particles):
-    # This function computes the standard tail energy correction for the LJ potential
+	# This function computes the standard tail energy correction for the LJ potential
 
-    volume = np.power(box_length, 3)
-    sig_by_cutoff3 = np.power(1.0 / cutoff, 3)
-    sig_by_cutoff9 = np.power(sig_by_cutoff3, 3)
-    e_correction = sig_by_cutoff9 - 3.0 * sig_by_cutoff3
+	volume = np.power(box_length, 3)
+	sig_by_cutoff3 = np.power(1.0 / cutoff, 3)
+	sig_by_cutoff9 = np.power(sig_by_cutoff3, 3)
+	e_correction = sig_by_cutoff9 - 3.0 * sig_by_cutoff3
 
-    e_correction *= 8.0 / 9.0 * np.pi * number_particles / volume * number_particles
- 
-    return e_correction
+	e_correction *= 8.0 / 9.0 * np.pi * number_particles / volume * number_particles
+
+	return e_correction
+
 
 def minimum_image_distance(r_i, r_j, box_length):
-    # This function computes the minimum image distance between two particles
+    '''Calculate the minimum distance between two atoms
 
-    rij = r_i - r_j
-    rij = rij - box_length * np.round(rij / box_length)
-    rij2 = np.dot(rij, rij)
-    return rij2
+    ----------
+    Parameters
+    ----------
+    r_i, r_j : np.array
+        Arrays of the atomic coordinates.
+    box_length : float
+        The dimensions of the square box in reduced units.
+
+    -------
+    Returns
+    -------
+    rij2 : float
+        A scalar product of the positions for two atoms.
+    '''
+	rij = r_i - r_j
+	rij = rij - box_length * np.round(rij / box_length)
+	rij2 = np.dot(rij, rij)
+	return rij2
+
 
 def get_particle_energy(coordinates, box_length, i_particle, cutoff2):
     ''' Computes the energy of a particle with the rest of the system.
@@ -76,7 +127,7 @@ def get_particle_energy(coordinates, box_length, i_particle, cutoff2):
     for j_particle in range(particle_count):
 
         if i_particle != j_particle:
-            
+
             j_position = coordinates[j_particle]
 
             rij2 = minimum_image_distance(i_position, j_position, box_length)
@@ -86,6 +137,7 @@ def get_particle_energy(coordinates, box_length, i_particle, cutoff2):
                 e_total += e_pair
 
     return e_total
+
 
 def calculate_total_pair_energy(coordinates, box_length, cutoff2):
     ''' Computes the total energy between all pairs of molecules of whole system.
@@ -122,9 +174,25 @@ def calculate_total_pair_energy(coordinates, box_length, cutoff2):
 
     return e_total
 
+
 def accept_or_reject(delta_e, beta):
-    # This function accepts or reject a move given the
-    # energy difference and system temperature
+    '''Accept or reject a given move based on the Metropolis Criteria.
+
+    ----------
+    Parameters
+    ----------
+    delta_e : double
+        The energy difference between the current step and the previous step.
+    beta : double
+        The inverse of reduced temperature, 1 / T
+
+
+    ------
+    Return
+    ------
+    accept : bool
+        If the move is accepted (true) or rejected (false).
+    '''
 
     if delta_e < 0.0:
         accept = True
@@ -140,7 +208,32 @@ def accept_or_reject(delta_e, beta):
 
     return accept
 
+
 def adjust_displacement(n_trials, n_accept, max_displacement):
+    '''Change max trial displacement on the fly based on acceptance rate.
+
+    Currently 38% acceptance is considered low and 42% accpetance is considered
+    high.
+    ----------
+    Parameters
+    ----------
+    n_trials : int
+        The current number of attempted MC moves.
+    n_accept : int
+        The current number of accepted MC moves.
+    max_displacement : float
+        Maximum MC move displacement.
+
+    -------
+    Returns
+    ------
+    max_displacement : float
+        The adjusted max displacement based on acceptance criteria.
+    n_trials : int
+        Returns zero to reset acceptance rate
+    n_accept : int
+        Returns zero to reset acceptance rate
+    '''
     acc_rate = float(n_accept) / float(n_trials)
     if (acc_rate < 0.38):
         max_displacement *= 0.8
@@ -153,9 +246,10 @@ def adjust_displacement(n_trials, n_accept, max_displacement):
 
     return max_displacement, n_trials, n_accept
 
-#----------------
+# ----------------
 # Parameter setup
-#----------------
+# ----------------
+
 
 reduced_temperature = 0.9
 reduced_density = 0.9
@@ -174,14 +268,17 @@ n_trials = 0
 n_accept = 0
 energy_array = np.zeros(n_steps)
 
-#-----------------------
+# -----------------------
 # Monte Carlo simulation
-#-----------------------
+# -----------------------
 
-coordinates = generate_initial_state(method=build_method, num_particles=num_particles, box_length=box_length)
+coordinates = generate_initial_state(
+    method=build_method, num_particles=num_particles, box_length=box_length)
 
-total_pair_energy = calculate_total_pair_energy(coordinates, box_length, simulation_cutoff2)
-tail_correction = calculate_tail_correction(box_length, simulation_cutoff, num_particles)
+total_pair_energy = calculate_total_pair_energy(
+    coordinates, box_length, simulation_cutoff2)
+tail_correction = calculate_tail_correction(
+    box_length, simulation_cutoff, num_particles)
 
 n_trials = 0
 
@@ -193,13 +290,16 @@ for i_step in range(n_steps):
 
     random_displacement = (2.0 * np.random.rand(3) - 1.0) * max_displacement
 
-    current_energy = get_particle_energy(coordinates, box_length, i_particle, simulation_cutoff2)
+    current_energy = get_particle_energy(
+        coordinates, box_length, i_particle, simulation_cutoff2)
 
     proposed_coordinates = coordinates.copy()
     proposed_coordinates[i_particle] += random_displacement
-    proposed_coordinates -= box_length * np.round(proposed_coordinates / box_length)
+    proposed_coordinates -= box_length * \
+        np.round(proposed_coordinates / box_length)
 
-    proposed_energy = get_particle_energy(proposed_coordinates, box_length, i_particle, simulation_cutoff2)
+    proposed_energy = get_particle_energy(
+        proposed_coordinates, box_length, i_particle, simulation_cutoff2)
 
     delta_e = proposed_energy - current_energy
 
@@ -220,16 +320,17 @@ for i_step in range(n_steps):
         print(i_step + 1, energy_array[i_step])
 
         if tune_displacement:
-            max_displacement, n_trials, n_accept = adjust_displacement(n_trials, n_accept, max_displacement)
+            max_displacement, n_trials, n_accept = adjust_displacement(
+                n_trials, n_accept, max_displacement)
 
 
 #plt.plot(energy_array[100:], 'o')
 #plt.xlabel('Monte Carlo steps')
 #plt.ylabel('Energy (reduced units)')
-#plt.grid(True)
-#plt.show()
+# plt.grid(True)
+# plt.show()
 
-#plt.figure()
+# plt.figure()
 #ax = plt.axes(projection='3d')
 #ax.plot3D(coordinates[:,0], coordinates[:,1], coordinates[:,2], 'o')
-#plt.show()
+# plt.show()
