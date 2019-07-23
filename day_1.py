@@ -115,6 +115,9 @@ def accept_or_reject(delta_e, beta):
 def adjust_displacement(n_trials, n_accept, max_displacement):
     '''Change max trial displacement on the fly based on acceptance rate.
 
+    Currently 38% acceptance is considered low and 42% accpetance is considered
+    high.
+    ----------
     Parameters
     ----------
     n_trials : int
@@ -124,6 +127,7 @@ def adjust_displacement(n_trials, n_accept, max_displacement):
     max_displacement : float
         Maximum MC move displacement.
 
+    -------
     Returns
     ------
     max_displacement : float
