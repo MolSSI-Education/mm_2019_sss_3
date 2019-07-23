@@ -104,7 +104,7 @@ def calculate_total_pair_energy(coordinates, box_length, cutoff2):
     Returns
     -------
     e_total : float
-        Total pair energy of the system.
+        Total pairwise energy of the system.
     '''
     
     e_total = 0.0
