@@ -73,8 +73,22 @@ def calculate_tail_correction(box_length, cutoff, number_particles):
 
 
 def minimum_image_distance(r_i, r_j, box_length):
-	# This function computes the minimum image distance between two particles
+    '''Calculate the minimum distance between two atoms
 
+    ----------
+    Parameters
+    ----------
+    r_i, r_j : np.array
+        Arrays of the atomic coordinates.
+    box_length : float
+        The dimensions of the square box in reduced units.
+
+    -------
+    Returns
+    -------
+    rij2 : float
+        A scalar product of the positions for two atoms.
+    '''
 	rij = r_i - r_j
 	rij = rij - box_length * np.round(rij / box_length)
 	rij2 = np.dot(rij, rij)
