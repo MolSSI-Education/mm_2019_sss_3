@@ -105,7 +105,7 @@ def get_particle_energy(coordinates, box_length, i_particle, cutoff2):
         An array of atomic coordinates (x, y, z). Shape (n, 3), where
         n is the number of particles.
     box_length : float
-        Size of the box in Angstroms.
+        The dimensions of the square box in reduced units.
     i_particle : np.array
         An array of atomic particles (x, y, z). Shape (1, 3).
     cutoff : float
@@ -148,8 +148,8 @@ def calculate_total_pair_energy(coordinates, box_length, cutoff2):
     coordinates : np.array
         An array of atomic coordinates (x, y, z). Shape (n, 3), where n is the number of particles.
     box_length : float
-        Size of the box in Angstroms.
-    cutoff : float
+        The dimensions of the square box in reduced units.
+    cutoff2 : float
         Squared cutoff to evaluate Lennard Jones interaction between two particles.
 
     -------
