@@ -24,7 +24,7 @@ def generate_initial_state(method='random',
 
 	Returns
 	-------
-	coordinates in numpy array format.
+	coordinates : coordinates in numpy array format.
 	"""
 
 	if method is 'random':
