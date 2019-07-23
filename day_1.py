@@ -25,6 +25,38 @@ def lennard_jones_potential(rij2):
     return 4.0 * (sig_by_r12 - sig_by_r6)
 
 def calculate_tail_correction(box_length, cutoff, number_particles):
+'''
+This is the function to calculate the correction interaction energy between two
+particles. The correction energy considers the energy that is truncated when
+two particles has distance is longer than the cutoff distance.
+
+Parameters
+----------
+
+number_particles : float
+    total number of particles in the box
+
+box_length : float
+    length of the NVT box
+
+volume : float
+    volume of the NVT box that contains all particles
+
+cutoff : float
+    reduced cutoff distance
+
+sig_by_cutoff3 : float
+    power to the third of 1/cutoff
+
+sig_by_cutoff9 : float
+    power to the ninth of 1/cutoff
+
+Return
+------
+
+e_correction : float
+    correction energy after truncation
+'''
     # This function computes the standard tail energy correction for the LJ potential
 
     volume = np.power(box_length, 3)
