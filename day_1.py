@@ -26,9 +26,7 @@ def lennard_jones_potential(rij2):
 
 def calculate_tail_correction(box_length, cutoff, number_particles):
 '''
-This is the function to calculate the correction interaction energy between two
-particles. The correction energy considers the energy that is truncated when
-two particles has distance is longer than the cutoff distance.
+The function calculates correct interaction energy after energy cutoff.
 
 Parameters
 ----------
