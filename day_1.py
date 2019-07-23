@@ -108,7 +108,7 @@ def get_particle_energy(coordinates, box_length, i_particle, cutoff2):
         The dimensions of the square box in reduced units.
     i_particle : np.array
         An array of atomic particles (x, y, z). Shape (1, 3).
-    cutoff : float
+    cutoff2 : float
         Squared cutoff to evaluate Lennard Jones interaction between two particles.
 
     -------
