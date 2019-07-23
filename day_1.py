@@ -84,9 +84,27 @@ def calculate_total_pair_energy(coordinates, box_length, cutoff2):
 
     return e_total
 
-def accept_or_reject(delta_e, beta):
-    # This function accepts or reject a move given the
-    # energy difference and system temperature
+def accept_or_reject(
+    delta_e,        # energy difference between current & previous step
+    beta            # = 1 / reduced_temperature
+    ):
+    '''This function accepts or reject a move given the energy difference and system temperature.
+
+    ----------
+    parameters
+    ----------
+    delta_e : double
+        The energy difference between the current step and the previous step.
+    beta : double
+        The inverse of reduced temperature, 1 / reduced temperature
+
+
+    ------
+    return
+    ------
+    accept : bool
+        If the move is accepted (true) or rejected (false).
+    '''
 
     if delta_e < 0.0:
         accept = True
