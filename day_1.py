@@ -147,7 +147,7 @@ def calculate_total_pair_energy(coordinates, box_length, cutoff2):
     ----------
     coordinates : np.array
         An array of atomic coordinates (x, y, z). Shape (n, 3), where n is the number of particles.
-    box_lenght : float
+    box_length : float
         Size of the box in Angstroms.
     cutoff : float
         Squared cutoff to evaluate Lennard Jones interaction between two particles.
