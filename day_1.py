@@ -25,6 +25,35 @@ def lennard_jones_potential(rij2):
     return 4.0 * (sig_by_r12 - sig_by_r6)
 
 def calculate_tail_correction(box_length, cutoff, number_particles):
+    '''
+    Energy truncation and tail corrections: interaction energy of two particles is truncated if their
+    distance is longer than cutoff distance.
+
+    Parameters
+    ----------
+
+    volume : float
+        volume of the box that contain all atoms or molecules
+    
+    cutoff : np.array
+        reduced cutoff distance
+    
+    sig_by_cutoff3 : np.array
+        power to the third of 1/cutoff
+
+    sig_by_cutoff9 : np.array
+        power to the night of 1/cutoff
+
+    number_particles : float
+        total number of particles in the box
+
+    Returns
+    -------
+
+    e_correction : np.array
+        correction energy based on Lennard-Jones potential after considering cutoff
+
+    '''
     # This function computes the standard tail energy correction for the LJ potential
 
     volume = np.power(box_length, 3)
