@@ -25,8 +25,7 @@ def lennard_jones_potential(rij2):
     return 4.0 * (sig_by_r12 - sig_by_r6)
 
 def calculate_tail_correction(box_length, cutoff, number_particles):
-'''
-The function calculates correct interaction energy after energy cutoff.
+'''The function calculates correct interaction energy from energy cutoff.
 
 Parameters
 ----------
@@ -38,7 +37,7 @@ box_length : float
     length of the NVT box
 
 cutoff : float
-    reduced cutoff distance
+    reduced Lennard-Jones potential cutoff distance
 
 Return
 ------
