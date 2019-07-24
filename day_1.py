@@ -3,60 +3,56 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 
-def generate_initial_state(method='random',                                                                           
+def generate_initial_state(method='random',
                            file_name=None,
                            num_particles=None,
                            box_length=None):
-	"""
-	This function generates initial coordinates of a LJ fluid simulation  either randomly or from a file.
+    """This function generates initial coordinates of a LJ fluid simulation.
 
-	Parameters
-	----------
+    Parameters
+    ----------
 
-	method : str
-		What method to use when generating initial configurations. options are 'random' or 'file'
-	file_name : str
-		string of file to load into the simulation box. This is only required if the method is 'file'
-	num_particles : int
-		number of particles in the simulation box. This is only required if the method is 'random'
-	box_length : float/int
-		length of simulation box. This is only required if the method is 'random'
+    method : str
+        What method to use when generating initial configurations. options are
+        'random' or 'file' file_name : str string of file to load into the
+        simulation box. This is only required if the method is 'file'
+    num_particles : int
+        number of particles in the simulation box. This is only required if the
+        method is 'random' box_length : float/int length of simulation box.
+        This is only required if the method is 'random'
 
-	Returns
-	-------
-	coordinates : coordinates in numpy array format.
-	"""
+    Returns
+    -------
+    coordinates : coordinates in numpy array format.
+    """
 
-	if method is 'random':
-		coordinates = (0.5 - np.random.rand(num_particles, 3)) * box_length
+    if method == 'random':
+        coordinates = (0.5 - np.random.rand(num_particles, 3)) * box_length
 
-	elif method is 'file':
-
+    elif method == 'file':
         coordinates = np.loadtxt(file_name, skiprows=2, usecols=(1, 2, 3))
 
     return coordinates
 
 
 def lennard_jones_potential(rij2):
-	"""
-	returns the LJ energy for a given rij distance
+    """Returns the LJ energy for a given rij distance.
 
-	Parameters
-	----------
+    Parameters
+    ----------
 
-	rij2 : float
-		square of distance rij between two particles
+    rij2 : float
+        square of distance rij between two particles
 
-	Returns
-	-------
+    Returns
+    -------
 
-	energy : float
-		LJ potential energy
-	"""
-	sig_by_r6 = np.power(1 / rij2, 3)
-	sig_by_r12 = np.power(sig_by_r6, 2)
-	return 4.0 * (sig_by_r12 - sig_by_r6)
-
+    energy : float
+        LJ potential energy
+    """
+    sig_by_r6 = np.power(1 / rij2, 3)
+    sig_by_r12 = np.power(sig_by_r6, 2)
+    return 4.0 * (sig_by_r12 - sig_by_r6)
 
 
 def calculate_tail_correction(box_length, cutoff, number_particles):
@@ -84,14 +80,14 @@ def calculate_tail_correction(box_length, cutoff, number_particles):
     sig_by_cutoff3 = np.power(1.0 / cutoff, 3)
     sig_by_cutoff9 = np.power(sig_by_cutoff3, 3)
     e_correction = sig_by_cutoff9 - 3.0 * sig_by_cutoff3
-    e_correction *= 8.0 / 9.0 * np.pi * number_particles / volume * number_particles
+    e_correction *= 8.0 / 9.0 * np.pi * number_particles
+    e_correction /= volume * number_particles
     return e_correction
 
 
 def minimum_image_distance(r_i, r_j, box_length):
-    '''Calculate the minimum distance between two atoms
+    '''Calculate the minimum distance between two atoms.
 
-    ----------
     Parameters
     ----------
     r_i, r_j : np.array
@@ -99,16 +95,15 @@ def minimum_image_distance(r_i, r_j, box_length):
     box_length : float
         The dimensions of the square box in reduced units.
 
-    -------
     Returns
     -------
     rij2 : float
         A scalar product of the positions for two atoms.
     '''
-	rij = r_i - r_j
-	rij = rij - box_length * np.round(rij / box_length)
-	rij2 = np.dot(rij, rij)
-	return rij2
+    rij = r_i - r_j
+    rij = rij - box_length * np.round(rij / box_length)
+    rij2 = np.dot(rij, rij)
+    return rij2
 
 
 def get_particle_energy(coordinates, box_length, i_particle, cutoff2):
@@ -125,7 +120,8 @@ def get_particle_energy(coordinates, box_length, i_particle, cutoff2):
     i_particle : np.array
         An array of atomic particles (x, y, z). Shape (1, 3).
     cutoff2 : float
-        Squared cutoff to evaluate Lennard Jones interaction between two particles.
+        Squared cutoff to evaluate Lennard Jones interaction between two
+        particles.
 
     -------
     Returns
@@ -157,16 +153,16 @@ def get_particle_energy(coordinates, box_length, i_particle, cutoff2):
 
 def calculate_total_pair_energy(coordinates, box_length, cutoff2):
     ''' Computes the total energy between all pairs of molecules of whole system.
-    
-    ----------
+
     Parameters
     ----------
     coordinates : np.array
-        An array of atomic coordinates (x, y, z). Shape (n, 3), where n is the number of particles.
-    box_length : float
-        The dimensions of the square box in reduced units.
+        An array of atomic coordinates (x, y, z). Shape (n, 3), where n is the
+        number of particles.  box_length : float The dimensions of the square
+        box in reduced units.
     cutoff2 : float
-        Squared cutoff to evaluate Lennard Jones interaction between two particles.
+        Squared cutoff to evaluate Lennard Jones interaction between two
+        particles.
 
     -------
     Returns
@@ -174,7 +170,7 @@ def calculate_total_pair_energy(coordinates, box_length, cutoff2):
     e_total : float
         Total pairwise energy of the system.
     '''
-    
+
     e_total = 0.0
     particle_count = len(coordinates)
 
@@ -230,9 +226,10 @@ def adjust_displacement(n_trials, n_accept, max_displacement):
 
     Currently 38% acceptance is considered low and 42% accpetance is considered
     high.
-    ----------
+
     Parameters
     ----------
+
     n_trials : int
         The current number of attempted MC moves.
     n_accept : int
@@ -240,9 +237,9 @@ def adjust_displacement(n_trials, n_accept, max_displacement):
     max_displacement : float
         Maximum MC move displacement.
 
-    -------
     Returns
     ------
+
     max_displacement : float
         The adjusted max displacement based on acceptance criteria.
     n_trials : int
@@ -340,13 +337,13 @@ for i_step in range(n_steps):
                 n_trials, n_accept, max_displacement)
 
 
-#plt.plot(energy_array[100:], 'o')
-#plt.xlabel('Monte Carlo steps')
-#plt.ylabel('Energy (reduced units)')
+# plt.plot(energy_array[100:], 'o')
+# plt.xlabel('Monte Carlo steps')
+# plt.ylabel('Energy (reduced units)')
 # plt.grid(True)
 # plt.show()
 
 # plt.figure()
-#ax = plt.axes(projection='3d')
-#ax.plot3D(coordinates[:,0], coordinates[:,1], coordinates[:,2], 'o')
+# ax = plt.axes(projection='3d')
+# ax.plot3D(coordinates[:,0], coordinates[:,1], coordinates[:,2], 'o')
 # plt.show()
