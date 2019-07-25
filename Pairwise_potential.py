@@ -27,12 +27,13 @@ class LJ(PairwisePotential):
 
     """
     
-    def __init__(self,sigma=1.0,epsilon=1.0):
+    def __init__(self,sigma=1.0,epsilon=1.0, cutoff=2.6):
 
         self.sigma = sigma
         self.epsilon = epsilon
+        self.cutoff2 = cutoff * cutoff
     
-    def __call__(self, rij2):
+    def lennard_jones(self, rij2):
         """Pairwise potential energy by Lennard-Jones potential
 
     Parameters
@@ -51,12 +52,12 @@ class LJ(PairwisePotential):
         sig_by_r12 = np.power(sig_by_r6,2)
         return 4.0*self.epsilon*(sig_by_r12-sig_by_r6)
 
-    def cutoff_correction(self, cutoff, box_object, num_particles,):
+    def cutoff_correction(self, cutoff2, box_object, num_particles,):
         """The function corrects interaction energy from energy cutoff.
 
     Parameters
     ----------
-    cutoff : float
+    cutoff2 : float
         Lennard-Jones potential cutoff distance
 
     box_object : box
@@ -74,11 +75,19 @@ class LJ(PairwisePotential):
     """
 
         volume = box_object.volume
-        sig_by_cutoff3 = np.power(self.sigma/cutoff, 3)
+        sig_by_cutoff3 = np.power(self.sigma/cutoff2, 3)
         sig_by_cutoff9 = np.power(sig_by_cutoff3, 3)
         e_correction = sig_by_cutoff9 - 3.0 * sig_by_cutoff3
         e_correction *= 8.0 / 9.0 * np.pi * num_particles / volume * num_particles
         return e_correction
+
+    def __call__(self, rij2):
+
+        if rij2 < self.cutoff2:
+            e_pair = lennard_jones(rij2)
+        else:
+            e_pair = 0.0
+        return e_pair
 
 class HS(PairwisePotential):
     """Pairwiswe potential energy by Hard-sphere potential
