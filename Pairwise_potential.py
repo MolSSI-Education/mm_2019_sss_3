@@ -31,7 +31,7 @@ class LJ(PairwisePotential):
 
         self.sigma = sigma
         self.epsilon = epsilon
-
+    
     def __call__(self, rij2):
         """Pairwise potential energy by Lennard-Jones potential
 
@@ -59,7 +59,7 @@ class LJ(PairwisePotential):
     cutoff : float
         Lennard-Jones potential cutoff distance
 
-    box_object : np.array
+    box_object : box
         This is a box object.
 
     num_particles : float
