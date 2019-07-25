@@ -14,8 +14,21 @@ class PairwisePotential(ABC):
         pass
 
 class LJ(PairwisePotential):
+    """Pairwise potential and correction energy by Lennard-Jones potential
+
+    Parameters
+    ----------
+
+    sigma : float
+        Distance between two particles when interaction potential is zero
+
+    epsilon: float
+        Depth of potential well
+
+    """
     
     def __init__(self,sigma=1.0,epsilon=1.0):
+
         self.sigma = sigma
         self.epsilon = epsilon
 
@@ -25,19 +38,13 @@ class LJ(PairwisePotential):
     Parameters
     ----------
 
-    sigma : float
-        distance between two particles when interaction potential is zero
-
-    epsilon: float
-        depth of potential well
-
     rij2 : float
-        square distance between two particles
+        Square distance between two particles
 
     Return
     ------
 
-    Value of Lennard-Jones potential energy between two particles at considered distance
+    Pairwise Lennard-Jones potential energy at considered distance
     
     """
         sig_by_r6 = np.power(self.sigma/rij2,3)
@@ -45,7 +52,7 @@ class LJ(PairwisePotential):
         return 4.0*self.epsilon*(sig_by_r12-sig_by_r6)
 
     def cutoff_correction(self, cutoff, box_object, num_particles,):
-        '''The function corrects interaction energy from energy cutoff.
+        """The function corrects interaction energy from energy cutoff.
 
     Parameters
     ----------
@@ -53,30 +60,49 @@ class LJ(PairwisePotential):
         Lennard-Jones potential cutoff distance
 
     box_object : np.array
-        the NVT box
+        This is a box object.
 
     num_particles : float
-        total number of particles in the box
+        Total number of particles in the box
 
     Return
     ------
 
     e_correction : float
-        correction energy from truncation
-    '''
-        volume = np.power(box_object.length, 3)
+        Correction energy from truncation
+
+    """
+
+        volume = box_object.volume
         sig_by_cutoff3 = np.power(self.sigma/cutoff, 3)
         sig_by_cutoff9 = np.power(sig_by_cutoff3, 3)
         e_correction = sig_by_cutoff9 - 3.0 * sig_by_cutoff3
         e_correction *= 8.0 / 9.0 * np.pi * num_particles / volume * num_particles
         return e_correction
-class HW(PairwisePotential):
+
+class HS(PairwisePotential):
+    """Pairwiswe potential energy by Hard-sphere potential
+
+    Parameters
+    ----------
+
+    rij2 = square distance between two particles
+
+    """
 
     def __call__(self,rij2):
         pass
 
 class SW(PairwisePotential):
-    
+    """Pairwiswe potential energy by Square-well potential
+
+    Parameters
+    ----------
+
+    rij2 = square distance between two particles
+
+    """
+
     def __call__(self,rij2):
         pass
 
