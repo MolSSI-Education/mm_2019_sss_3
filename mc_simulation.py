@@ -50,6 +50,7 @@ class MCSimulation(object):
         self._log_index = CounterIndex()
 
     def run(self, steps):
+        self.check_state()
         self._initialize_state(steps)
         for i in range(steps):
             for i, integrator in enumerate(self.integrators):
@@ -91,15 +92,38 @@ class MCSimulation(object):
         self.integrators.append(integrator)
         self.steps_accepted.append(0)
 
-    @property
-    def tune(self):
-        return self.steps % self.frequency == 0 if self._tuning else False
+    def add_potential(self, potential):
+        self.potential = potential
 
     def add_box(self, box):
         self.box = box
 
     def add_particles(self, particles):
         self.particles = particles
+
+    def calculate_total_energy(self):
+        e_total = 0
+        for i in np.arange(self.particles.num_particles):
+            rij2 = self.box.minimum_image_distance(
+                    self.particles.coordinates[i],
+                    self.particles.coordinates[i+1:]
+                    )
+            e_total += self.pair_potential(rij2)
+        return e_total
+
+    def check_state(self):
+        if self.integrator == list():
+            raise RuntimeError("No integrator defined.")
+        if not hasattr(self, 'potential'):
+            raise RuntimeError("No potential defined.")
+        if not hasattr(self, 'particles'):
+            raise RuntimeError("No particles defined.")
+        if not hasattr(self, 'box'):
+            raise RuntimeError("No box defined.")
+
+    @property
+    def tune(self):
+        return self.steps % self.frequency == 0 if self._tuning else False
 
     def print_log(self):
         format_str = 'Step {}, Energy {}, Acceptance Rates {}'
