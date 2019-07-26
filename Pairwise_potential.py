@@ -6,7 +6,7 @@ class PairwisePotential(ABC):
     Parameters
     ----------
 
-    rij2 : float
+    rij2 : np.array
         square distance between two particles
 
     Return
@@ -53,7 +53,7 @@ class LJ(PairwisePotential):
     Parameters
     ----------
 
-    rij2 : float
+    rij2 : np.array
         square distance between two particles
 
     """
@@ -91,10 +91,13 @@ class LJ(PairwisePotential):
 
     def __call__(self, rij2):
 
-        if rij2 < self.cutoff2:
-            e_pair = self.potential(rij2)
-        else:
-            e_pair = 0.0
+        try:
+            e_pair = np.sum(self.potential(rij2[rij2 < self.cutoff2]))
+        except TypeError:
+            if rij2 < self.cutoff2:
+                e_pair = self.potential(rij2)
+            else:
+                e_pair = 0.0
         return e_pair
 
 class HS(PairwisePotential):
@@ -103,7 +106,7 @@ class HS(PairwisePotential):
     Parameters
     ----------
 
-    rij2 : float
+    rij2 : np.array
         square distance between two particles
 
     """
@@ -120,7 +123,7 @@ class SW(PairwisePotential):
     Parameters
     ----------
 
-    rij2 : float
+    rij2 : np.array
         square distance between two particles
 
     """
@@ -130,6 +133,4 @@ class SW(PairwisePotential):
 
     def __call__(self, rij2):
         pass
-
-
 
