@@ -13,49 +13,49 @@ class Integrator:
         self.cutoff = cutoff
         self.low_acceptance = low_acceptance
         self.high_acceptance = high_acceptance
-        self.max_displacement= max_displacement
-
+        self.max_displacement = max_displacement
 
     def get_particle_energy(self,
-                   particles,
-                    box_object,
-                   i_particle,
-                   ):
+                            particles,
+                            box_object,
+                            i_particle,
+                            ):
         ''' Computes the energy of a particle with the rest of the system.
 
         ----------
         Parameters
         ----------
-        coordinates : np.array
-        An array of atomic coordinates (x, y, z). Shape (n, 3), where
-        n is the number of particles.
-        box_length : float
-        The dimensions of the square box in reduced units.
+        particles : class object
+            particles.coordinates is what will be used. np array.
+            An array of atomic coordinates (x, y, z). Shape (n, 3), where
+            n is the number of particles.
+        box_object: class object
+            box_object.box_length is used. float.
+            The dimensions of the square box in reduced units.
         i_particle : np.array
-        An array of atomic particles (x, y, z). Shape (1, 3).
+            An array of atomic particles (x, y, z). Shape (1, 3).
 
         -------
         Returns
         -------
-        e_total : float
+        e_pair : float
         Total energy of particle i with the rest of the system.
         '''
 
         i_position = particles.coordinates[i_particle]
 
         rij2 = box_object.minimum_image_distance(i_position,
-                      particles.coordinates[i_position != particles.coordinates]
-                                                     )
-            ##
+                                                 particles.coordinates[
+                                                  i_position !=
+                                                  particles.coordinates]
+                                                 )
 
         e_pair = self.pair_energy_object(rij2)
+        # pair_energy_object needs to be replaced by corresponding function.
 
         return e_pair
 
-
-    def is_accepted(self,
-                    delta_e,
-                    beta):
+    def accept_or_reject(self, delta_e, beta):
         '''Accept or reject a given move based on the Metropolis Criteria.
 
         ----------
@@ -95,37 +95,31 @@ class Integrator:
         ----------
         Parameters
         ----------
-        n_trials : int
-            The current number of attempted MC moves.
-        n_accept : int
-            The current number of accepted MC moves.
+        max_displacement : float
+            The current value for maximum displacement in the move.
+        acc_rate : float
+            acceptance rate. It is equal to n_accept/n_trial.
 
         -------
         Returns
         -------
-        n_trials : int
-            Returns zero to reset acceptance rate
-        n_accept : int
-            Returns zero to reset acceptance rate
+        max_displacement :float
+            New max_displacement adjusted based on acc_rate.
         '''
 
-
-        if (acc_rate < self.low_acceptance):
+        if acc_rate < self.low_acceptance:
             max_displacement *= 0.8
 
-        elif (acc_rate > self.high_acceptance):
+        elif acc_rate > self.high_acceptance:
             max_displacement *= 1.2
 
         return max_displacement
 
-
-
-
-    def __call__(self, particles, box, beta):
+    def __call__(self, particles, box, beta, tune_displacement, acc_rate):
 
         i_particle = np.random.randint(particles.num_particles)
         random_displacement = (2.0 * np.random.rand(3) - 1.0) * \
-                              self.max_displacement
+            self.max_displacement
 
         old_energy = self.get_particle_energy(particles.coordinates,
                                               box.box_length,
@@ -133,16 +127,19 @@ class Integrator:
         proposed_coordinates = particles.coordinates.copy()
         proposed_coordinates[i_particle] += random_displacement
 
-        new_energy = self.get_particle_energy(new_coordinate)
+        new_energy = self.get_particle_energy(proposed_coordinates,
+                                              box.box_length,
+                                              i_particle)
         delta_e = new_energy - old_energy
 
-        acceptance = self.is_accepted(delta_e, beta)
+        acceptance = self.accept_or_reject(delta_e, beta)
         if acceptance is True:
-            particles.coordinates[i_particle] = proposed_coordinates[i_particle]
+            particles.coordinates[i_particle] = \
+                proposed_coordinates[i_particle]
         if tune_displacement:
-            new_max_displacement = self.adjust_displacement(max_displacement,
-                                                            acc_rate)
-            self.max_displacement(new_max_displacement)
+            self.max_displacement = self.adjust_displacement(
+                                                        self.max_displacement,
+                                                        acc_rate)
 
         return acceptance, delta_e
 
