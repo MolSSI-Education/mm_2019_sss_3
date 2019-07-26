@@ -28,5 +28,5 @@ def test_is_accepted():
             n_acc += 1
     p_acc = n_acc / 1000.0
 
-    assert ( p_acc - 0.9 ) <= 0.01
+    assert abs( p_acc - 0.9 ) <= 0.01
 
