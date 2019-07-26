@@ -6,7 +6,8 @@ class PairwisePotential(ABC):
     Parameters
     ----------
 
-    rij2 = square distance between two particles
+    rij2 : float
+        square distance between two particles
 
     Return
     ------
@@ -47,6 +48,15 @@ class LJ(PairwisePotential):
         self.cutoff2 = cutoff * cutoff
     
     def potential(self, rij2):
+        """Pairwiswe potential energy by Lennard-Jones potential
+
+    Parameters
+    ----------
+
+    rij2 : float
+        square distance between two particles
+
+    """
 
         sig_by_r6 = np.power(self.sigma/rij2,3)
         sig_by_r12 = np.power(sig_by_r6,2)
@@ -57,8 +67,6 @@ class LJ(PairwisePotential):
 
     Parameters
     ----------
-    cutoff2 : float
-        Lennard-Jones potential cutoff distance
 
     box_object : box
         This is a box object.
@@ -95,7 +103,8 @@ class HS(PairwisePotential):
     Parameters
     ----------
 
-    rij2 = square distance between two particles
+    rij2 : float
+        square distance between two particles
 
     """
 
@@ -111,7 +120,8 @@ class SW(PairwisePotential):
     Parameters
     ----------
 
-    rij2 = square distance between two particles
+    rij2 : float
+        square distance between two particles
 
     """
 
