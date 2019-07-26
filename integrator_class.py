@@ -1,5 +1,4 @@
-# Use call function to create a callables that tries a move accepts or rejects and if accepts,
-# update the position, bla bla
+
 import numpy as np
 
 
@@ -8,17 +7,20 @@ class Integrator:
                  pair_energy_object,
                  cutoff=3.0,
                  low_acceptance=0.38,
-                 high_acceptance=0.42):
+                 high_acceptance=0.42,
+                 max_displacement=0.1):
         self.pair_energy_object = pair_energy_object
         self.cutoff = cutoff
         self.low_acceptance = low_acceptance
         self.high_acceptance = high_acceptance
+        self.max_displacement= max_displacement
 
 
     def get_particle_energy(self,
-                   coordinates,
+                   particles,
+                    box_object,
                    i_particle,
-                   box_object):
+                   ):
         ''' Computes the energy of a particle with the rest of the system.
 
         ----------
@@ -39,26 +41,16 @@ class Integrator:
         Total energy of particle i with the rest of the system.
         '''
 
-        cutoff2 = np.power(self.cutoff, 2)
-        e_total = 0.0
+        i_position = particles.coordinates[i_particle]
 
-        i_position = coordinates[i_particle]
+        rij2 = box_object.minimum_image_distance(i_position,
+                      particles.coordinates[i_position != particles.coordinates]
+                                                     )
+            ##
 
-        particle_count = len(coordinates)
+        e_pair = self.pair_energy_object(rij2)
 
-        for j_particle in range(particle_count):
-
-            if i_particle != j_particle:
-
-               j_position = coordinates[j_particle]
-
-               rij2 = box_object.minimum_image_distance(i_position, j_position)            ##
-
-               if rij2 < cutoff2:
-                   e_pair = self.pair_energy_object(rij2)          ##
-                   e_total += e_pair
-
-        return e_total
+        return e_pair
 
 
     def is_accepted(self,
@@ -97,8 +89,7 @@ class Integrator:
 
     def adjust_displacement(self,
                             max_displacement,
-                            n_trials,
-                            n_accept):
+                            acc_rate):
         '''Change max trial displacement on the fly based on acceptance rate.
 
         ----------
@@ -118,7 +109,6 @@ class Integrator:
             Returns zero to reset acceptance rate
         '''
 
-        acc_rate = float(n_accept) / float(n_trials)
 
         if (acc_rate < self.low_acceptance):
             max_displacement *= 0.8
@@ -126,46 +116,35 @@ class Integrator:
         elif (acc_rate > self.high_acceptance):
             max_displacement *= 1.2
 
-        n_trials = 0
-        n_accept = 0
-
-        return max_displacement, n_trials, n_accept
-
-    @property
-    def max_displacement(self):
-        max_displacement = .1
         return max_displacement
 
-    @max_displacement.setter
-    def new_max_displacement(self, new_max_displacement):
-        self.max_displace = self.adjust_displacement(max_displacement, )
-        n_trial = 0
-        n_accept = 0
-        return
 
-    max_displacement = 0.1
-    def __call__(self, particles, box):
+
+
+    def __call__(self, particles, box, beta):
 
         i_particle = np.random.randint(particles.num_particles)
-        random_displacement = (2.0 * np.random.rand(3) - 1.0) * max_displacement
-        cutoff2 = np.power(self.cutoff, 2)   # Are we feeding cutoff here?
-        old_energy = self.get_particle_energy(coordinates, box.box_length, i_particle, cutoff2)
+        random_displacement = (2.0 * np.random.rand(3) - 1.0) * \
+                              self.max_displacement
+
+        old_energy = self.get_particle_energy(particles.coordinates,
+                                              box.box_length,
+                                              i_particle)
         proposed_coordinates = particles.coordinates.copy()
         proposed_coordinates[i_particle] += random_displacement
-        acceptance = self.is_accepted()
+
         new_energy = self.get_particle_energy(new_coordinate)
         delta_e = new_energy - old_energy
-        if np.mod(i_step + 1, freq) == 0:
 
-            print(i_step + 1, energy_array[i_step])
+        acceptance = self.is_accepted(delta_e, beta)
+        if acceptance is True:
+            particles.coordinates[i_particle] = proposed_coordinates[i_particle]
+        if tune_displacement:
+            new_max_displacement = self.adjust_displacement(max_displacement,
+                                                            acc_rate)
+            self.max_displacement(new_max_displacement)
 
-            if tune_displacement:
-                max_displacement = self.adjust_displacement(n_trials, n_accept, max_displacement)
-                n_accept = 0
-                n_trials = 0
         return acceptance, delta_e
 
 
-
-# try_move = Integrator(coordinates)  ==> this should return accept status. if accepted then return delta e
 
