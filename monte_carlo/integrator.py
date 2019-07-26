@@ -17,7 +17,7 @@ class Integrator:
 ## tocheck /w box_object & self.pair_energy_object
     def get_particle_energy(self, 
                             coordinates, 
-                            i_particle, 
+                            i_position, 
                             box_object):
         ''' Computes the energy of a particle with the rest of the system.
 
@@ -29,8 +29,8 @@ class Integrator:
             n is the number of particles.
         box_length : float
             The dimensions of the square box in reduced units.
-        i_particle : np.array
-            An array of atomic particles (x, y, z). Shape (1, 3).
+        i_position : np.array
+            An array containing the coordinate of particle i. np.array.shape (1, 3) -> [x, y, z]
 
         -------
         Returns
@@ -42,22 +42,15 @@ class Integrator:
         cutoff2 = np.power(self.cutoff, 2)
         e_total = 0.0
 
-        i_position = coordinates[i_particle]
-
         particle_count = len(coordinates)
-
-        for j_particle in range(particle_count):
-
-            if i_particle != j_particle:
-
-                j_position = coordinates[j_particle]
-
-                rij2 = box_object.minimum_image_distance(i_position, j_position) 
-
-                if rij2 < cutoff2:
-                    e_pair = self.pair_energy_object(rij2)
-                    e_total += e_pair
-
+        
+        rij2_array = box_object.minimum_image_distance(i_position, coordinates) 
+        
+        for rij2 in rij2_array:
+        
+            if rij2 <= cutoff2:
+                e_total += pair_energy_object.potential(rij2)
+        
         return e_total
 
     def is_accepted(self, 
