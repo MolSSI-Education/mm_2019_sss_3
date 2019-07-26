@@ -3,18 +3,16 @@ import numpy as np
 class Box:
     def __init__(self, box_dim):
         self.box_dim = box_dim
-        self.box_vol = box_vol
 
     def volume(self):
         """Calculate the box volume
 
         Returns
         -------
-        box_vol : float
+        box volume : float
             Computed box volume
         """
-        self.box_vol = np.dot(self.box_dim,self.box_dim)
-        return self.box_vol
+        return np.prod(self.box_dim)
         
     def wrap(self, coordinates):
         """Wraps the coordinates within the box dimensions
@@ -53,5 +51,5 @@ class Box:
         """
         coord_ij = coord_i[np.newaxis, :] - coord_j[coord_j != coord_i]
         coord_ij = coord_ij - self.box_dim[np.newaxis, :] * np.round(coord_ij / self.box_dim[np.newaxis, :])
-        coord_ij2 = np.square(coord_ij)
+        coord_ij2 = np.sum(np.square(coord_ij), axis = 1)
         return coord_ij2
