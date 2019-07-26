@@ -43,7 +43,7 @@ class MCSimulation(object):
     '''
 
     def __init__(self, tune_integrators=True, frequency=10000):
-        self.tuning = tune_integrators
+        self._tuning = tune_integrators
         self.frequency = frequency
         self.step = 0
         self.steps_accepted = []
@@ -58,15 +58,23 @@ class MCSimulation(object):
                 delta_e, accepted = integrator(self.particles,
                                                self.box,
                                                acceptance_rate,
-                                               tune=self.tune())
+                                               tune=self.tune)
                 if accepted:
                     self.steps_accepted[i] += 1
-                self.energy += delta_e
+                    self.energy += delta_e
                 if self.steps % self.frequency == 0:
                     self.print_log()
-                    index = self._log_index
-                    self.energies[index] = self.energy
-                    self.steps[index] = self.step
+                    self._update_log()
+
+    def run_upto(self, step):
+        if self.step >= self.step:
+            return None
+        self.run(step - self.step)
+
+    def _update_log(self):
+        index = self._log_index
+        self.energies[index] = self.energy
+        self.steps[index] = self.step
 
     def _initialize_state(self, steps):
         log_num = steps // self.frequency + 1
@@ -74,9 +82,7 @@ class MCSimulation(object):
             self.steps = np.zeros(log_num)
             self.energies = np.zeros(log_num)
             self.energy = self.calculate_total_energy()
-            index = self._log_index()
-            self.energies[index] = self.energy
-            self.steps[index] = 0
+            self._update_log()
         else:
             self.steps = np.concatenate(self.steps, np.zeros(log_num))
             self.energies = np.concatenate(self.energies, np.zeros(log_num))
@@ -85,8 +91,9 @@ class MCSimulation(object):
         self.integrators.append(integrator)
         self.steps_accepted.append(0)
 
+    @property
     def tune(self):
-        return self.steps % self.frequency == 0 if self.tuning else False
+        return self.steps % self.frequency == 0 if self._tuning else False
 
     def add_box(self, box):
         self.box = box
@@ -98,5 +105,5 @@ class MCSimulation(object):
         format_str = 'Step {}, Energy {}, Acceptance Rates {}'
         accepted_rates = np.array(self.steps_accepted) / self.steps
         print(format_str.format(self.step,
-                                self.energy / self.particles,
+                                self.energy / self.particles.num_particles,
                                 accepted_rates))
