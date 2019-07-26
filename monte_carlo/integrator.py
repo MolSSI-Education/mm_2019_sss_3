@@ -45,11 +45,7 @@ class Integrator:
         particle_count = len(coordinates)
         
         rij2_array = box_object.minimum_image_distance(i_position, coordinates) 
-        
-        for rij2 in rij2_array:
-        
-            if rij2 <= cutoff2:
-                e_total += pair_energy_object.potential(rij2)
+        e_total = pair_energy_object.potential(rij2_array[rij2_array < cutoff2])
         
         return e_total
 
