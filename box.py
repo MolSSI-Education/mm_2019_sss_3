@@ -4,8 +4,7 @@ class Box:
     def __init__(self, box_dim):
         self.box_dim = box_dim
         
-    # wrapping equation
-    def wrap(self, box_dim, coordinates):
+    def wrap(self, coordinates):
         """Wraps the coordinates within the box dimensions
 
         Parameters
@@ -26,7 +25,7 @@ class Box:
             coordinates -= self.box_dim * np.round(coordinates / self.box_dim[np.newaxis, :])
         return coordinates
         
-    def minimum_image_distance(self,coord_i, coord_j, box_dim):
+    def minimum_image_distance(self,coord_i, coord_j):
         """Calculate the minimum distance between two atoms.
         
         Parameters
@@ -42,6 +41,6 @@ class Box:
             A scalar product of the positions for two atoms.
         """
         coord_ij = coord_i - coord_j
-        coord_ij = coord_ij - box_dim * np.round(coord_ij / box_dim)
+        coord_ij = coord_ij - self.box_dim * np.round(coord_ij / self.box_dim)
         coord_ij2 = np.dot(coord_ij, coord_ij)
         return coord_ij2
