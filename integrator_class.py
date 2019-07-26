@@ -5,12 +5,10 @@ import numpy as np
 class Integrator:
     def __init__(self,
                  pair_energy_object,
-                 cutoff=3.0,
                  low_acceptance=0.38,
                  high_acceptance=0.42,
                  max_displacement=0.1):
         self.pair_energy_object = pair_energy_object
-        self.cutoff = cutoff
         self.low_acceptance = low_acceptance
         self.high_acceptance = high_acceptance
         self.max_displacement = max_displacement
@@ -108,10 +106,10 @@ class Integrator:
         '''
 
         if acc_rate < self.low_acceptance:
-            max_displacement *= 0.8
+            max_displacement *= 0.9
 
         elif acc_rate > self.high_acceptance:
-            max_displacement *= 1.2
+            max_displacement *= 1.1
 
         return max_displacement
 
@@ -142,6 +140,3 @@ class Integrator:
                                                         acc_rate)
 
         return acceptance, delta_e
-
-
-
