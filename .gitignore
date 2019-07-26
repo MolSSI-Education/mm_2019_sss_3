@@ -1,6 +1,8 @@
 # Mine
 box.py
 sample_config1.xyz
+.gitignore
+prueba.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
