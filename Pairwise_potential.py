@@ -133,4 +133,3 @@ class SW(PairwisePotential):
 
     def __call__(self, rij2):
         pass
-
