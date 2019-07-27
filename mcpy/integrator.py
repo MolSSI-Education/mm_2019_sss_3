@@ -1,5 +1,5 @@
-
 import numpy as np
+import mcpy.particles
 
 
 class Integrator:
@@ -28,7 +28,7 @@ class Integrator:
             An array of atomic coordinates (x, y, z). Shape (n, 3), where
             n is the number of particles.
         box_object: class object
-            box_object.box_length is used. float.
+            box_object.box_dims is used. np.ndarray[float].
             The dimensions of the square box in reduced units.
         i_particle : np.array
             An array of atomic particles (x, y, z). Shape (1, 3).
@@ -42,11 +42,11 @@ class Integrator:
 
         i_position = particles.coordinates[i_particle]
 
-        rij2 = box_object.minimum_image_distance(i_position,
-                                                 particles.coordinates[
-                                                  i_position !=
-                                                  particles.coordinates]
-                                                 )
+        rij2 = box_object.minimum_image_distance(
+            i_position,
+            particles.coordinates[i_position !=
+                                  particles.coordinates].reshape((-1, 3))
+        )
 
         e_pair = self.pair_energy_object(rij2)
         # pair_energy_object needs to be replaced by corresponding function.
@@ -119,14 +119,15 @@ class Integrator:
         random_displacement = (2.0 * np.random.rand(3) - 1.0) * \
             self.max_displacement
 
-        old_energy = self.get_particle_energy(particles.coordinates,
-                                              box.box_length,
+        old_energy = self.get_particle_energy(particles,
+                                              box,
                                               i_particle)
         proposed_coordinates = particles.coordinates.copy()
         proposed_coordinates[i_particle] += random_displacement
+        proposed_particles = mcpy.particles.Particles(proposed_coordinates)
 
-        new_energy = self.get_particle_energy(proposed_coordinates,
-                                              box.box_length,
+        new_energy = self.get_particle_energy(proposed_particles,
+                                              box,
                                               i_particle)
         delta_e = new_energy - old_energy
 
@@ -136,7 +137,7 @@ class Integrator:
                 proposed_coordinates[i_particle]
         if tune_displacement:
             self.max_displacement = self.adjust_displacement(
-                                                        self.max_displacement,
-                                                        acc_rate)
+                self.max_displacement,
+                acc_rate)
 
         return acceptance, delta_e
