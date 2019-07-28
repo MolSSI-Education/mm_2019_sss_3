@@ -68,7 +68,7 @@ class MCSimulation(object):
                     self._update_log()
 
     def run_upto(self, step):
-        if self.step >= self.step:
+        if self.step >= step:
             return None
         self.run(step - self.step)
 
