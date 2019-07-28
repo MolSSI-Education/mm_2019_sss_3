@@ -7,7 +7,6 @@ Contains Particles class
 import numpy as np
 from mcpy.box import *
 
-
 class Particles():
     def __init__(self, coordinates):
         ''' Particles Class Constructor.
