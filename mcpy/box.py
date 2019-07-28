@@ -4,6 +4,7 @@ class Box:
     def __init__(self, box_dim):
         self.box_dim = box_dim
 
+    @property
     def volume(self):
         """Calculate the box volume
 
