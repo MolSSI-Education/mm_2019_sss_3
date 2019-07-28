@@ -58,7 +58,8 @@ class LJ(PairwisePotential):
 
     """
 
-        sig_by_r6 = np.power(self.sigma/rij2,3)
+        sigma2 = np.power(self.sigma,2)
+        sig_by_r6 = np.power(sigma2/rij2,3)
         sig_by_r12 = np.power(sig_by_r6,2)
         return 4.0*self.epsilon*(sig_by_r12-sig_by_r6)
 
