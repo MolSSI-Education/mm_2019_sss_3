@@ -5,7 +5,7 @@ Contains Particles class
 """
 
 import numpy as np
-from box import *
+from mcpy.box import *
 
 
 class Particles():
