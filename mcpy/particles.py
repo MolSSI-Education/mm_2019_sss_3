@@ -7,6 +7,7 @@ Contains Particles class
 import numpy as np
 from box import *
 
+
 class Particles():
     def __init__(self, coordinates):
         ''' Particles Class Constructor.
@@ -64,15 +65,3 @@ class Particles():
     def num_particles(self):
         '''Returns the coordinates of the Particles Object'''
         return len(self.coordinates)
- 
-'''
-num_particles = 3
-box_dims = np.array([1, 1, 1])
-
-# If we load from file and want to wrap
-part1 =  Particles.from_file(file_name='sample_config1.xyz')
-# If we create them randomly
-part3 =  Particles.from_random( num_particles = 3, box_dims = box_dims)
-
-print(F'{part3.coordinates}\nNum particles: {part3.num_particles}')
-'''s
