@@ -5,7 +5,7 @@ import numpy as np
 
 
 def test_from_file():
-    particles =  Particles.from_file(file_name='sample_config.xyz')
+    particles =  Particles.from_file(file_name = 'sample_config.xyz')
     # File includes 800 particles
     expected_num_particles = 800
     calculated_num_particles = particles.num_particles
@@ -20,8 +20,7 @@ def test_from_random():
     calculated_num_particles = particles.num_particles
     
     # Testing coordinates are inside the box dimensions
-    expected_value = True
-    calculated_value = (np.abs(particles.coordinates) <= box_dims).all()
+    particles_within_the_box = (np.abs(particles.coordinates) <= box_dims).all()
 
     assert(expected_num_particles == calculated_num_particles)
-    assert(calculated_value == expected_value)
+    assert(particles_within_the_box)
