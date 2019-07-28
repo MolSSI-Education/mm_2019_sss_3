@@ -1,7 +1,5 @@
 import numpy as np
 from abc import ABC, abstractmethod
-
-
 class PairwisePotential(ABC):
     """Pairwiswe potential energy at considered distance
 
@@ -28,7 +26,6 @@ class PairwisePotential(ABC):
     def __call__(self, rij2):
         pass
 
-
 class LJ(PairwisePotential):
     """Pairwise potential and correction energy by Lennard-Jones potential
 
@@ -42,14 +39,14 @@ class LJ(PairwisePotential):
         Depth of potential well
 
     """
-
+    
     def __init__(self, sigma=1.0, epsilon=1.0, cutoff=2.6):
 
         self.sigma = sigma
         self.epsilon = epsilon
         self._cutoff = cutoff
         self.cutoff2 = cutoff * cutoff
-
+    
     def potential(self, rij2):
         """Pairwiswe potential energy by Lennard-Jones potential
 
@@ -61,8 +58,9 @@ class LJ(PairwisePotential):
 
     """
 
-        sig_by_r6 = np.power(self.sigma/rij2, 3)
-        sig_by_r12 = np.power(sig_by_r6, 2)
+        sigma2 = np.power(self.sigma,2)
+        sig_by_r6 = np.power(sigma2/rij2,3)
+        sig_by_r12 = np.power(sig_by_r6,2)
         return 4.0*self.epsilon*(sig_by_r12-sig_by_r6)
 
     def cutoff_correction(self, box_object, num_particles,):
@@ -85,13 +83,11 @@ class LJ(PairwisePotential):
 
     """
 
-        volume = box_object.volume()
+        volume = box_object.volume
         sig_by_cutoff3 = np.power(self.sigma/self._cutoff, 3)
         sig_by_cutoff9 = np.power(sig_by_cutoff3, 3)
         e_correction = sig_by_cutoff9 - 3.0 * sig_by_cutoff3
-        e_correction *= 8.0 / 9.0 * np.pi * \
-            np.power(num_particles, 2) * self.epsilon * \
-            np.power(self.sigma, 3) / volume
+        e_correction *= 8.0 / 9.0 * np.pi * np.power(num_particles,2) * self.epsilon * np.power(self.sigma,3)/ volume
         return e_correction
 
     def __call__(self, rij2):
@@ -104,7 +100,6 @@ class LJ(PairwisePotential):
             else:
                 e_pair = 0.0
         return e_pair
-
 
 class HS(PairwisePotential):
     """Pairwiswe potential energy by Hard-sphere potential
@@ -123,7 +118,6 @@ class HS(PairwisePotential):
     def __call__(self, rij2):
         pass
 
-
 class SW(PairwisePotential):
     """Pairwiswe potential energy by Square-well potential
 
@@ -140,3 +134,4 @@ class SW(PairwisePotential):
 
     def __call__(self, rij2):
         pass
+
