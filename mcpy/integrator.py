@@ -1,5 +1,6 @@
 
 import numpy as np
+import mcpy.particles
 
 
 class Integrator:
@@ -119,18 +120,19 @@ class Integrator:
         random_displacement = (2.0 * np.random.rand(3) - 1.0) * \
             self.max_displacement
 
-        old_energy = self.get_particle_energy(particles.coordinates,
-                                              box.box_length,
+        old_energy = self.get_particle_energy(particles,
+                                              box,
                                               i_particle)
         proposed_coordinates = particles.coordinates.copy()
         proposed_coordinates[i_particle] += random_displacement
+        proposed_particles = mcpy.particles.Particles(proposed_coordinates)
 
-        new_energy = self.get_particle_energy(proposed_coordinates,
-                                              box.box_length,
+        new_energy = self.get_particle_energy(proposed_particles,
+                                              box,
                                               i_particle)
         delta_e = new_energy - old_energy
 
-        acceptance = self.accept_or_reject(delta_e, self.beta)
+        acceptance = self.accept_or_reject(delta_e)
         if acceptance is True:
             particles.coordinates[i_particle] = \
                 proposed_coordinates[i_particle]

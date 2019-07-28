@@ -7,6 +7,7 @@ import numpy as np
 
 class CounterIndex(object):
     '''Just a simple counter class that increments when called.'''
+
     def __init__(self):
         self._cnt = 0
 
@@ -57,6 +58,7 @@ class MCSimulation(object):
         self.frequency = frequency
         self.step = 0
         self.steps_accepted = []
+        self.integrators = []
         self._log_index = CounterIndex()
 
     def run(self, steps):
@@ -79,16 +81,16 @@ class MCSimulation(object):
         self._initialize_state(steps)
         for i in range(steps):
             for i, integrator in enumerate(self.integrators):
-                self.steps += 1
+                self.step += 1
                 acceptance_rate = self.steps_accepted[i] / self.step
-                delta_e, accepted = integrator(self.particles,
+                accepted, delta_e = integrator(self.particles,
                                                self.box,
-                                               acceptance_rate,
-                                               tune=self.tune)
+                                               acc_rate=acceptance_rate,
+                                               tune_displacement=self.tune)
                 if accepted:
                     self.steps_accepted[i] += 1
                     self.energy += delta_e
-                if self.steps % self.frequency == 0:
+                if self.step % self.frequency == 0:
                     self.print_log()
                     self._update_log()
 
@@ -111,7 +113,7 @@ class MCSimulation(object):
         self.run(step - self.step)
 
     def _update_log(self):
-        index = self._log_index
+        index = self._log_index()
         self.energies[index] = self.energy
         self.steps[index] = self.step
 
@@ -123,8 +125,10 @@ class MCSimulation(object):
             self.energy = self.calculate_total_energy()
             self._update_log()
         else:
-            self.steps = np.concatenate(self.steps, np.zeros(log_num))
-            self.energies = np.concatenate(self.energies, np.zeros(log_num))
+            self.steps = np.concatenate((self.steps, np.zeros(log_num)),
+                                        axis=None)
+            self.energies = np.concatenate((self.energies, np.zeros(log_num)),
+                                           axis=None)
 
     def add_integrator(self, integrator):
         '''Add integrator to list of simulation integrators.
@@ -193,15 +197,17 @@ class MCSimulation(object):
         e_total = 0
         for i in np.arange(self.particles.num_particles):
             rij2 = self.box.minimum_image_distance(
-                    self.particles.coordinates[i],
-                    self.particles.coordinates[i+1:]
-                    )
-            e_total += self.pair_potential(rij2)
-        return e_total
+                self.particles.coordinates[i],
+                self.particles.coordinates[i+1:]
+            )
+            e_total += self.potential(rij2)
+        return e_total + self.potential.cutoff_correction(
+            self.box,
+            self.particles.num_particles)
 
     def check_state(self):
         '''Raises a RuntimeError if self is not ready to run.'''
-        if self.integrator == list():
+        if self.integrators == list():
             raise RuntimeError("No integrator defined.")
         if not hasattr(self, 'potential'):
             raise RuntimeError("No potential defined.")
@@ -212,12 +218,12 @@ class MCSimulation(object):
 
     @property
     def tune(self):
-        return self.steps % self.frequency == 0 if self._tuning else False
+        return self.step % self.frequency == 0 if self._tuning else False
 
     def print_log(self):
         '''Print out current step, energy, and integrator acceptance rates.'''
         format_str = 'Step {}, Energy {}, Acceptance Rates {}'
-        accepted_rates = np.array(self.steps_accepted) / self.steps
+        accepted_rates = np.array(self.steps_accepted) / self.step
         print(format_str.format(self.step,
                                 self.energy / self.particles.num_particles,
                                 accepted_rates))
