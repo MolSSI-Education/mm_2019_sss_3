@@ -1,5 +1,5 @@
 
-from .integrator import Integrator
+from mcpy.integrator import Integrator
 import pytest
 import sys
 import numpy as np

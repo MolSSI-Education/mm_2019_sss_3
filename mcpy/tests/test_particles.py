@@ -1,4 +1,4 @@
-from .particles import Particles
+from mcpy.particles import Particles
 import pytest
 import sys
 import numpy as np 
