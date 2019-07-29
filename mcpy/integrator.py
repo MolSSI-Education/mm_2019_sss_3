@@ -1,14 +1,17 @@
 
 import numpy as np
+import mcpy.particles
 
 
 class Integrator:
     def __init__(self,
+                 beta,
                  pair_energy_object,
                  low_acceptance=0.38,
                  high_acceptance=0.42,
                  max_displacement=0.1):
         self.pair_energy_object = pair_energy_object
+        self.beta = beta
         self.low_acceptance = low_acceptance
         self.high_acceptance = high_acceptance
         self.max_displacement = max_displacement
@@ -44,8 +47,8 @@ class Integrator:
 
         rij2 = box_object.minimum_image_distance(i_position,
                                                  particles.coordinates[
-                                                  i_position !=
-                                                  particles.coordinates]
+                                                     i_position !=
+                                                     particles.coordinates]
                                                  )
 
         e_pair = self.pair_energy_object(rij2)
@@ -53,7 +56,7 @@ class Integrator:
 
         return e_pair
 
-    def accept_or_reject(self, delta_e, beta):
+    def accept_or_reject(self, delta_e):
         '''Accept or reject a given move based on the Metropolis Criteria.
 
         ----------
@@ -61,8 +64,6 @@ class Integrator:
         ----------
         delta_e : double
             The energy difference between the current step and the previous step.
-        beta : double
-            The inverse of reduced temperature, 1 / T
 
         -------
         Returns
@@ -76,7 +77,7 @@ class Integrator:
 
         else:
             random_number = np.random.rand(1)
-            p_acc = np.exp(-beta * delta_e)
+            p_acc = np.exp(-self.beta * delta_e)
 
             if random_number < p_acc:
                 accept = True
@@ -113,30 +114,31 @@ class Integrator:
 
         return max_displacement
 
-    def __call__(self, particles, box, beta, tune_displacement, acc_rate):
+    def __call__(self, particles, box, tune_displacement, acc_rate):
 
         i_particle = np.random.randint(particles.num_particles)
         random_displacement = (2.0 * np.random.rand(3) - 1.0) * \
             self.max_displacement
 
-        old_energy = self.get_particle_energy(particles.coordinates,
-                                              box.box_length,
+        old_energy = self.get_particle_energy(particles,
+                                              box,
                                               i_particle)
         proposed_coordinates = particles.coordinates.copy()
         proposed_coordinates[i_particle] += random_displacement
+        proposed_particles = mcpy.particles.Particles(proposed_coordinates)
 
-        new_energy = self.get_particle_energy(proposed_coordinates,
-                                              box.box_length,
+        new_energy = self.get_particle_energy(proposed_particles,
+                                              box,
                                               i_particle)
         delta_e = new_energy - old_energy
 
-        acceptance = self.accept_or_reject(delta_e, beta)
+        acceptance = self.accept_or_reject(delta_e)
         if acceptance is True:
             particles.coordinates[i_particle] = \
                 proposed_coordinates[i_particle]
         if tune_displacement:
             self.max_displacement = self.adjust_displacement(
-                                                        self.max_displacement,
-                                                        acc_rate)
+                self.max_displacement,
+                acc_rate)
 
         return acceptance, delta_e

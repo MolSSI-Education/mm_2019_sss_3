@@ -5,6 +5,7 @@ Contains Particles class
 """
 
 import numpy as np
+from mcpy.box import *
 
 class Particles():
     def __init__(self, coordinates):
@@ -63,4 +64,3 @@ class Particles():
     def num_particles(self):
         '''Returns the coordinates of the Particles Object'''
         return len(self.coordinates)
- 
