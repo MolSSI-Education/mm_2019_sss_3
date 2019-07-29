@@ -32,12 +32,3 @@ def test_accept_or_reject():
 
     assert abs( p_acc - 0.9 ) <= 0.01
 
-#def test_get_particle_energy():
-#    particles_object = Particles([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 7.0]])
-#    box_object = Box([10.0, 10.0, 10.03])
-#    beta = 1
-#    pair_energy_object = LJ()
-#    inte = Integrator(beta,  pair_energy_object)
-#    calculated_particle_energy = inte.get_particle_energy(particles_object, box_object, 0) 
-#    expected_particle_energy = pair_energy_object.potential(1.0) + pair_energy_object.potential(5.0) + pair_energy_object.potential(7.0)
-#    assert np.isclose(calculated_particle_energy, expected_particle_energy)
