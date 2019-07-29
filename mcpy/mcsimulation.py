@@ -1,7 +1,13 @@
+'''mcsimulation.py - Holds the MCSimulation class which interfaces with the
+other classes in mcpy to provide a simple interface to run MC simulations.
+'''
+
 import numpy as np
 
 
 class CounterIndex(object):
+    '''Just a simple counter class that increments when called.'''
+
     def __init__(self):
         self._cnt = 0
 
@@ -36,8 +42,13 @@ class MCSimulation(object):
     integrators : list of Integrator objects
         A list of  Integrator objects that generate and accept or reject trial
         moves.
-    tuning : bool
-        Flag for whether integrators are tuned for acceptance rate.
+    potentials : sequence of Potentail objects
+        A list of potential objects that calculate pair potentials given a
+        squared distance.
+    tune : bool
+        Flag for whether integrators are tuned for acceptance rate. Implemented
+        so that it returns false on steps that
+        `self.step % self.frequency != 0` regardles of initialization.
     frequency : int
         Determines when to log data to std_out, default 10000.
     '''
@@ -47,33 +58,62 @@ class MCSimulation(object):
         self.frequency = frequency
         self.step = 0
         self.steps_accepted = []
+        self.integrators = []
         self._log_index = CounterIndex()
 
     def run(self, steps):
+        '''Runs the simulation for `steps` steps.
+
+        Also logs data for each `self.frequency` steps. Prints log data to
+        standard output at `self.frequency` intervals as well. The last step is
+        always printed as well.
+
+        Parameters
+        ----------
+        steps : int
+            The number of MC steps to run.
+
+        Return
+        ------
+        None
+        '''
         self.check_state()
         self._initialize_state(steps)
         for i in range(steps):
             for i, integrator in enumerate(self.integrators):
-                self.steps += 1
+                self.step += 1
                 acceptance_rate = self.steps_accepted[i] / self.step
-                delta_e, accepted = integrator(self.particles,
+                accepted, delta_e = integrator(self.particles,
                                                self.box,
-                                               acceptance_rate,
-                                               tune=self.tune)
+                                               acc_rate=acceptance_rate,
+                                               tune_displacement=self.tune)
                 if accepted:
                     self.steps_accepted[i] += 1
                     self.energy += delta_e
-                if self.steps % self.frequency == 0:
+                if self.step % self.frequency == 0:
                     self.print_log()
                     self._update_log()
 
     def run_upto(self, step):
+        '''Run until the simulation has reached the specified step.
+
+        Does nothing if step has already been exceeded.
+
+        Parameters
+        ----------
+        step : int
+            The MC step to end on.
+
+        Returns
+        -------
+        None
+        '''
         if self.step >= step:
             return None
         self.run(step - self.step)
 
     def _update_log(self):
-        index = self._log_index
+        index = self._log_index()
         self.energies[index] = self.energy
         self.steps[index] = self.step
 
@@ -85,34 +125,89 @@ class MCSimulation(object):
             self.energy = self.calculate_total_energy()
             self._update_log()
         else:
-            self.steps = np.concatenate(self.steps, np.zeros(log_num))
-            self.energies = np.concatenate(self.energies, np.zeros(log_num))
+            self.steps = np.concatenate((self.steps, np.zeros(log_num)),
+                                        axis=None)
+            self.energies = np.concatenate((self.energies, np.zeros(log_num)),
+                                           axis=None)
 
     def add_integrator(self, integrator):
+        '''Add integrator to list of simulation integrators.
+
+        Parameters
+        ----------
+        integrator : mcpy.Integrator object
+            A initialized mcpy.Integrator object that can generate and realize
+            MC trial moves.
+
+        Returns
+        -------
+        None
+        '''
         self.integrators.append(integrator)
         self.steps_accepted.append(0)
 
     def add_potential(self, potential):
+        '''Add a pairwise potential to the simulation.
+
+        Parameters
+        ----------
+        potential : mcpy.Pairwise.Potential object
+            A pairwise potential to use in calculating the energy.
+
+        Returns
+        -------
+        None
+        '''
         self.potential = potential
 
     def add_box(self, box):
+        '''Add a simulation box to the simulation.
+
+        Parameters
+        ----------
+        potential : mcpy.Box object
+            A simulation box for the simulation.
+
+        Returns
+        -------
+        None
+        '''
         self.box = box
 
     def add_particles(self, particles):
+        '''Add particles to the simulation.
+
+        Parameters
+        ----------
+        potential : mcpy.Particles object
+            Particles to use for the simulation.
+
+        Returns
+        -------
+        None
+        '''
         self.particles = particles
 
     def calculate_total_energy(self):
+        '''Calculate the current total energy.
+
+        Uses the potential, particles, and box objects. Usually only needs to
+        be done at initialization though can be called at any time.
+        '''
         e_total = 0
         for i in np.arange(self.particles.num_particles):
             rij2 = self.box.minimum_image_distance(
-                    self.particles.coordinates[i],
-                    self.particles.coordinates[i+1:]
-                    )
-            e_total += self.pair_potential(rij2)
-        return e_total
+                self.particles.coordinates[i],
+                self.particles.coordinates[i+1:]
+            )
+            e_total += self.potential(rij2)
+        return e_total + self.potential.cutoff_correction(
+            self.box,
+            self.particles.num_particles)
 
     def check_state(self):
-        if self.integrator == list():
+        '''Raises a RuntimeError if self is not ready to run.'''
+        if self.integrators == list():
             raise RuntimeError("No integrator defined.")
         if not hasattr(self, 'potential'):
             raise RuntimeError("No potential defined.")
@@ -123,11 +218,12 @@ class MCSimulation(object):
 
     @property
     def tune(self):
-        return self.steps % self.frequency == 0 if self._tuning else False
+        return self.step % self.frequency == 0 if self._tuning else False
 
     def print_log(self):
+        '''Print out current step, energy, and integrator acceptance rates.'''
         format_str = 'Step {}, Energy {}, Acceptance Rates {}'
-        accepted_rates = np.array(self.steps_accepted) / self.steps
+        accepted_rates = np.array(self.steps_accepted) / self.step
         print(format_str.format(self.step,
                                 self.energy / self.particles.num_particles,
                                 accepted_rates))
