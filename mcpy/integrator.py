@@ -1,8 +1,46 @@
-
 import numpy as np
 
 
 class Integrator:
+    '''Integrator of a Monte Carlo simulation
+    
+    Parameters
+    ----------
+    beta : float
+        The inverse of reduced temperature, 1 / T.
+    pair_energy_object : class object inherits PairwisePotential()
+        The infomation needed to compute pairwise potential energy.
+    low_acceptance : float, optional,default : 0.38
+        The accept rate considered to be low, should be a positive
+        float less than 1.
+    high_acceptance : float, optional, default : 0.42
+        The accept rate considered to be high, should be a positive
+        float less than 1, but larger than low_acceptance
+    max_displacement : float, optional, default : 0.1
+        The initial maximum displacement value in the move. 
+
+    Return
+    ------
+    self : Integrator
+        Return an instance of itself.
+
+    Attributes
+    ----------
+    beta : float
+        The inverse of reduced temperature, 1 / T.
+    pair_energy_object : class object inherits PairwisePotential()
+        The infomation needed to compute pairwise potential energy.
+    low_acceptance : float
+        The accept rate considered to be low, should be a positive
+        float less than 1.
+    high_acceptance : float
+        The accept rate considered to be high, should be a positive
+        float less than 1, but larger than low_acceptance
+    max_displacement : float
+        The initial maximum displacement value in the move.
+    '''
+    
+    
     def __init__(self,
                  beta,
                  pair_energy_object,
@@ -18,11 +56,9 @@ class Integrator:
     def get_particle_energy(self,
                             particles,
                             box_object,
-                            i_particle,
-                            ):
+                            i_particle,):
         ''' Computes the energy of a particle with the rest of the system.
 
-        ----------
         Parameters
         ----------
         particles : class object
@@ -35,7 +71,6 @@ class Integrator:
         i_particle : np.array
             An array of atomic particles (x, y, z). Shape (1, 3).
 
-        -------
         Returns
         -------
         e_pair : float
@@ -58,13 +93,11 @@ class Integrator:
     def accept_or_reject(self, delta_e):
         '''Accept or reject a given move based on the Metropolis Criteria.
 
-        ----------
         Parameters
         ----------
         delta_e : double
             The energy difference between the current step and the previous step.
 
-        -------
         Returns
         -------
         accept : bool
@@ -90,7 +123,6 @@ class Integrator:
                             acc_rate):
         '''Change max trial displacement on the fly based on acceptance rate.
 
-        ----------
         Parameters
         ----------
         max_displacement : float
@@ -98,7 +130,6 @@ class Integrator:
         acc_rate : float
             acceptance rate. It is equal to n_accept/n_trial.
 
-        -------
         Returns
         -------
         max_displacement :float
@@ -114,7 +145,27 @@ class Integrator:
         return max_displacement
 
     def __call__(self, particles, box, tune_displacement, acc_rate):
+        '''Execute a displace trial move.
 
+        Parameters
+        ----------
+        particles : Particles class object
+            The Particles class object that holds all infomation of particles.
+        box : Box class object
+            The Box class object that holds all information of the Box.
+        tune_displacement : bool
+            If true, integrator tunes the current trial move.
+        acc_rate : float
+            The acceptance rate for the current trial move
+        
+        Returns
+        -------
+        acceptance : bool
+            If the current trial move is accepted ( True ), or rejected.
+        delta_e : float
+            The energy change before and after the current trial move.
+
+        '''
         i_particle = np.random.randint(particles.num_particles)
         random_displacement = (2.0 * np.random.rand(3) - 1.0) * \
             self.max_displacement
