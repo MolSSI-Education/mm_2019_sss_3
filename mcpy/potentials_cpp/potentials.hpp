@@ -11,7 +11,7 @@ double LJ(Eigen::VectorXd coord_ij2,
             double epsilon = 1.0,
             double cutoff2 = 2.6);
 
-double cutoff_correction(Eigen::Vector3d box_dims,
+double cutoff_correction(double volume,
             int num_particles, 
             double sigma = 1.0, 
             double epsilon = 1.0, 

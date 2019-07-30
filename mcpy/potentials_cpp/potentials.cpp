@@ -26,13 +26,13 @@ double LJ(Eigen::VectorXd coord_ij2,
     return energy;
 }
 
-double cutoff_correction(Eigen::Vector3d box_dims,
+double cutoff_correction(double volume,
             int num_particles, 
             double sigma,
             double epsilon,
             double cutoff)
 {
-    double volume = box_dims.prod();
+    //double volume = volume;
 
     double sig_by_cutoff3 = pow( sigma / cutoff, 3);
     double sig_by_cutoff9 = pow( sig_by_cutoff3, 3);

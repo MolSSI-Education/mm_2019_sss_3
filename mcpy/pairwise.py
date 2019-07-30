@@ -1,4 +1,9 @@
 import numpy as np
+import sys
+
+sys.path.insert(0, '/home/joel/PycharmProjects/MolSSI/WDSS/team_3/mm_2019_sss_3/mcpy/potentials_cpp')
+import potentials_cpp as pts
+
 from abc import ABC, abstractmethod
 class PairwisePotential(ABC):
     """Pairwiswe potential energy at considered distance
@@ -57,13 +62,14 @@ class LJ(PairwisePotential):
         square distance between two particles
 
     """
+        #sigma2 = np.power(self.sigma,2)
+        #sig_by_r6 = np.power(sigma2/rij2,3)
+        #sig_by_r12 = np.power(sig_by_r6,2)
+        #return 4.0*self.epsilon*(sig_by_r12-sig_by_r6)
+        return pts.LJ(rij2, self.sigma, self.epsilon, self.cutoff2)
+        
 
-        sigma2 = np.power(self.sigma,2)
-        sig_by_r6 = np.power(sigma2/rij2,3)
-        sig_by_r12 = np.power(sig_by_r6,2)
-        return 4.0*self.epsilon*(sig_by_r12-sig_by_r6)
-
-    def cutoff_correction(self, box_object, num_particles,):
+    def cutoff_correction(self, box_object, num_particles):
         """The function corrects interaction energy from energy cutoff.
 
     Parameters
@@ -84,16 +90,18 @@ class LJ(PairwisePotential):
     """
 
         volume = box_object.volume
+
         sig_by_cutoff3 = np.power(self.sigma/self._cutoff, 3)
         sig_by_cutoff9 = np.power(sig_by_cutoff3, 3)
         e_correction = sig_by_cutoff9 - 3.0 * sig_by_cutoff3
         e_correction *= 8.0 / 9.0 * np.pi * np.power(num_particles,2) * self.epsilon * np.power(self.sigma,3)/ volume
         return e_correction
+        #return pts.cutoff_correction(volume, num_particles, self.sigma, self.epsilon, self.cutoff2)
 
     def __call__(self, rij2):
 
         try:
-            e_pair = np.sum(self.potential(rij2[rij2 < self.cutoff2]))
+            e_pair = self.potential(rij2)
         except TypeError:
             if rij2 < self.cutoff2:
                 e_pair = self.potential(rij2)
