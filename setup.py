@@ -4,6 +4,7 @@ A python package for the MolSSI Software Summer School.
 """
 import sys
 from setuptools import setup, find_packages
+import versioneer
 
 short_description = __doc__.split("\n")
 
@@ -21,13 +22,15 @@ except:
 setup(
     # Self-descriptive entries which should always be present
     name='mcpy',
-    author='Brandon Butler',
-    author_email='butlerbr@umich.edu',
+
+    author='MolSSI Summer School MM-3 Team',
+    author_email='sabiha3@uw.edu',
     description=short_description[0],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    license='LGPLv3',
-
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
+  
     # Which Python importable modules should be included when your package is installed
     # Handled automatically by setuptools. Use 'exclude' to prevent some specific
     # subpackage(s) from being added, if needed
