@@ -5,7 +5,7 @@
 #include <vector>
 #include <math.h>
 
-double LJ(Eigen::VectorXd coord_ij2, 
+double LJ(std::vector<double> coord_ij2, 
             double sigma = 1.0, 
             double epsilon = 1.0,
             double cutoff2 = 2.6)
@@ -13,16 +13,14 @@ double LJ(Eigen::VectorXd coord_ij2,
     double sigma2 = pow(sigma, 2);
     double energy = 0;
     
-    for (int i = 0; i < coord_ij2.size(); i++ )
+    for ( auto rij2 : coord_ij2 )
     {
-        if (coord_ij2[i] > cutoff2) {
-            continue;
+        if (rij2 < cutoff2) {
+            double sig_by_r6 = pow( sigma2 / rij2, 3 );
+            double sig_by_r12 = pow( sig_by_r6  , 2);
+            energy += 4.0 * epsilon * (sig_by_r12 - sig_by_r6);
         }
-        double sig_by_r6 = pow( sigma2 / coord_ij2[i], 3 );
-        double sig_by_r12 = pow( sig_by_r6  , 2);
-        energy += 4.0 * epsilon * (sig_by_r12 - sig_by_r6);
     }
-
     return energy;
 }
 

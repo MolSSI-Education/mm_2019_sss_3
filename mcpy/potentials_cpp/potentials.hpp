@@ -6,7 +6,7 @@
 #include <math.h>
 
 
-double LJ(Eigen::VectorXd coord_ij2, 
+double LJ(std::vector<double> coord_ij2, 
             double sigma = 1.0, 
             double epsilon = 1.0,
             double cutoff2 = 2.6);
