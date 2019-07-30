@@ -9,8 +9,6 @@ class Integrator:
     ----------
     beta : float
         The inverse of reduced temperature, 1 / T.
-    pair_energy_object : class object inherits PairwisePotential()
-        The infomation needed to compute pairwise potential energy.
     low_acceptance : float, optional,default : 0.38
         The accept rate considered to be low, should be a positive
         float less than 1.
@@ -29,8 +27,6 @@ class Integrator:
     ----------
     beta : float
         The inverse of reduced temperature, 1 / T.
-    pair_energy_object : class object inherits PairwisePotential()
-        The infomation needed to compute pairwise potential energy.
     low_acceptance : float
         The accept rate considered to be low, should be a positive
         float less than 1.
@@ -44,17 +40,16 @@ class Integrator:
     
     def __init__(self,
                  beta,
-                 pair_energy_object,
                  low_acceptance=0.38,
                  high_acceptance=0.42,
                  max_displacement=0.1):
-        self.pair_energy_object = pair_energy_object
         self.beta = beta
         self.low_acceptance = low_acceptance
         self.high_acceptance = high_acceptance
         self.max_displacement = max_displacement
 
     def get_particle_energy(self,
+                            potential,
                             particles,
                             box_object,
                             i_particle,):
@@ -62,6 +57,9 @@ class Integrator:
 
         Parameters
         ----------
+        potential : class Pairwise object
+            A pairwise potential object that can calculate an energy given an
+            array of squared distances.
         particles : class object
             particles.coordinates is what will be used. np array.
             An array of atomic coordinates (x, y, z). Shape (n, 3), where
@@ -82,7 +80,7 @@ class Integrator:
                                                  particles.coordinates
                                                  )
 
-        e_pair = self.pair_energy_object(rij2)
+        e_pair = potential(rij2)
         # pair_energy_object needs to be replaced by corresponding function.
 
         return e_pair
@@ -141,11 +139,14 @@ class Integrator:
 
         return max_displacement
 
-    def __call__(self, particles, box, tune_displacement, acc_rate):
+    def __call__(self, potential, particles, box, tune_displacement, acc_rate):
         '''Execute a displace trial move.
 
         Parameters
         ----------
+        potential : class Pairwise object
+            A pairwise potential object that can calculate an energy given an
+            array of squared distances.
         particles : Particles class object
             The Particles class object that holds all infomation of particles.
         box : Box class object
@@ -167,14 +168,16 @@ class Integrator:
         random_displacement = (2.0 * np.random.rand(3) - 1.0) * \
             self.max_displacement
 
-        old_energy = self.get_particle_energy(particles,
+        old_energy = self.get_particle_energy(potential,
+                                              particles,
                                               box,
                                               i_particle)
         proposed_coordinates = particles.coordinates.copy()
         proposed_coordinates[i_particle] += random_displacement
         proposed_particles = mcpy.particles.Particles(proposed_coordinates)
 
-        new_energy = self.get_particle_energy(proposed_particles,
+        new_energy = self.get_particle_energy(potential,
+                                              proposed_particles,
                                               box,
                                               i_particle)
         delta_e = new_energy - old_energy
