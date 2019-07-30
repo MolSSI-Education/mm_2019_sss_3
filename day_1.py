@@ -267,8 +267,8 @@ def adjust_displacement(n_trials, n_accept, max_displacement):
 reduced_temperature = 0.9
 reduced_density = 0.9
 n_steps = 1000000
-freq = 1000
-num_particles = 100
+freq = 10000
+num_particles = 500
 simulation_cutoff = 3.0
 max_displacement = 0.1
 tune_displacement = True
