@@ -43,12 +43,8 @@ class Integrator:
         Total energy of particle i with the rest of the system.
         '''
 
-        i_position = particles.coordinates[i_particle]
-
-        rij2 = box_object.minimum_image_distance(i_position,
-                                                 particles.coordinates[
-                                                     i_position !=
-                                                     particles.coordinates]
+        rij2 = box_object.minimum_image_distance(i_particle,
+                                                 particles.coordinates
                                                  )
 
         e_pair = self.pair_energy_object(rij2)

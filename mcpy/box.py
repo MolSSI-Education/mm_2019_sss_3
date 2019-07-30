@@ -33,17 +33,17 @@ class Box:
             coordinates -= self.box_dims * \
                 np.round(coordinates / self.box_dims)
         else:
-            coordinates -= self.box_dims * \
+            coordinates -= self.box_dims[np.newaxis, :] * \
                 np.round(coordinates / self.box_dims[np.newaxis, :])
         return coordinates
 
-    def minimum_image_distance(self, coord_i, coordinates):
+    def minimum_image_distance(self, index, coordinates):
         """Calculate the minimum distance between two atoms.
 
         Parameters
         ----------
-        coord_i : np.array
-            xyz coordinate of the i-th particle.
+        index : int
+            index of the particle to take the minimum images for
 
         coordinates : np.array
             Array of the atomic xyz coordinate for all particles.
@@ -54,8 +54,9 @@ class Box:
             Array of the distances between each i-th particle and remaining
             particles
         """
-        coord_ij = coord_i[np.newaxis, :] - coordinates[
-            coordinates != coord_i].reshape((-1, 3))
+        coord_ij = coordinates[index, :] - coordinates[:index, :]
+        temp = coordinates[index, :] - coordinates[index + 1:, :]
+        coord_ij = np.concatenate((coord_ij, temp))
         coord_ij = coord_ij - \
             self.box_dims[np.newaxis, :] * \
             np.round(coord_ij / self.box_dims[np.newaxis, :])
