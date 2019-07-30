@@ -54,9 +54,15 @@ class Box:
             Array of the distances between each i-th particle and remaining
             particles
         """
-        coord_ij = coordinates[index, :] - coordinates[:index, :]
-        temp = coordinates[index, :] - coordinates[index + 1:, :]
-        coord_ij = np.concatenate((coord_ij, temp))
+        if index != 0:
+            coord_ij = coordinates[index, :] - coordinates[:index, :]
+            not_zero = True
+        if index != len(coordinates):
+            coord_ij = coordinates[index, :] - coordinates[index + 1:, :]
+            not_end = True
+        if not_zero and not_end:
+            coord_ij = np.concatenate((coord_ij, temp))
+        
         coord_ij = coord_ij - \
             self.box_dims[np.newaxis, :] * \
             np.round(coord_ij / self.box_dims[np.newaxis, :])
