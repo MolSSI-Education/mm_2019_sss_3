@@ -54,6 +54,8 @@ class Box:
             Array of the distances between each i-th particle and remaining
             particles
         """
+        not_zero = False
+        not_end = False
         if index != 0:
             coord_ij = coordinates[index, :] - coordinates[:index, :]
             not_zero = True
