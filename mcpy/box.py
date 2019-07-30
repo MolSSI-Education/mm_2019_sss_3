@@ -2,6 +2,24 @@ import numpy as np
 
 
 class Box:
+    """Holds all the information for the Box.
+
+    Parameters
+    ----------
+    box_dims : np.array
+        The dimensional lengths of the box, should be a numpy array ([x, y, z]).
+        With shape (1, 3).
+
+    Returns
+    -------
+    self : Box
+        Returns an instance of itself.
+    
+    Attributes
+    ----------
+    box_dims : np.array
+        The dimensional lengths of the box, should be a numpy array ([x, y, z]).
+    """
     def __init__(self, box_dims):
         self.box_dims = box_dims
 
