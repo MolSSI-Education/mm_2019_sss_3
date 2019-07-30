@@ -1,7 +1,7 @@
-from ..integrator import Integrator
-from ..box import Box
-from ..particles import Particles
-from ..pairwise import LJ 
+from mcpy.integrator import Integrator
+from mcpy.box import Box
+from mcpy.particles import Particles
+from mcpy.pairwise import LJ 
 import pytest
 import sys
 import numpy as np
