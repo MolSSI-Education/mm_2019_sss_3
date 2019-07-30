@@ -22,7 +22,7 @@ except:
 setup(
     # Self-descriptive entries which should always be present
     name='mcpy',
-    author='Sabiha Rustam',
+    author='MolSSI MM Team3',
     author_email='sabiha3@uw.edu',
     description=short_description[0],
     long_description=long_description,
