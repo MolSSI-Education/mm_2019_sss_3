@@ -4,7 +4,6 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <math.h>
-#include <thread>
 
 
 double LJ(std::vector<double> & coord_ij2, 
