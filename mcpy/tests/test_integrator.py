@@ -1,30 +1,32 @@
-
-from .integrator import Integrator
+from mcpy.integrator import Integrator
+from mcpy.box import Box
+from mcpy.particles import Particles
+from mcpy.pairwise import LJ 
 import pytest
 import sys
 import numpy as np
 
-@pytest.mark.parametrize("max_displacement, n_trials, n_accept, expected_max_displacement",[
-    (0.1, 1000, 500, 0.12),
-    (0.2, 1000, 300, 0.16),
-    (0.3, 1000, 400, 0.3)
+@pytest.mark.parametrize("max_displacement, acc_rate, expected_max_displacement",[
+    (0.1, 0.5, 0.11),
+    (0.2, 0.3, 0.18),
+    (0.3, 0.4, 0.3)
 ])
-def test_adjust_displacement(max_displacement, n_trials, n_accept, expected_max_displacement):
+def test_adjust_displacement(max_displacement, acc_rate, expected_max_displacement):
+    beta = 1
     pair_energy_object = 0
-    inte = Integrator(pair_energy_object)
-    calculated_max_displacement, returned_trials, returned_accept = inte.adjust_displacement(max_displacement, n_trials, n_accept)
-    
-    assert (returned_accept, returned_trials) == (0, 0)
+    inte = Integrator(beta, pair_energy_object)
+    calculated_max_displacement = inte.adjust_displacement(max_displacement, acc_rate)
+
     assert np.isclose(calculated_max_displacement, expected_max_displacement)
 
-def test_is_accepted():
+def test_accept_or_reject():
     delta_e = -np.log(.9)
     pair_energy_object = 0
-    inte = Integrator(pair_energy_object)
-    beta = 1.0
+    beta = 1
+    inte = Integrator(beta, pair_energy_object) 
     n_acc = 0
     for i in range(1001):
-        if inte.is_accepted(delta_e, beta) == True:
+        if inte.accept_or_reject(delta_e) == True:
             n_acc += 1
     p_acc = n_acc / 1000.0
 
