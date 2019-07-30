@@ -1,4 +1,5 @@
 import pytest
+import contextlib
 import numpy as np
 import mcpy.particles
 import mcpy.box
@@ -7,7 +8,9 @@ import mcpy.integrator
 import mcpy.mcsimulation
 from timeit import default_timer as timer
 
-def test_energy_convergence():
+
+@pytest.fixture
+def mcsimulation():
     reduced_temperature = 0.9
     reduced_density = 0.9
     num_part = 500
@@ -22,12 +25,20 @@ def test_energy_convergence():
     mc.add_box(box)
     mc.add_particles(part)
     mc.add_potential(lj)
+    return mc
+
+
+def test_runs(mcsimulation):
+    mcsimulation.run(10, supress_output=True)
+
+
+def test_energy_convergence(mcsimulation):
     t1 = timer()
-    mc.run(1000000)
+    mcsimulation.run(1000000, supress_output=True)
     t2 = timer()
-    average_energy = np.mean(mc.energies[mc.steps > 499000])
     time = t2 - t1
-    # assert 1 million steps occur within 250 seconds
     assert time < 250
+    average_energy = np.mean(mcsimulation.energies[
+        mcsimulation.steps > 499000]) / mcsimulation.particles.num_particles
     # assert that energy converges to NIST values
     assert np.isclose(average_energy, 6.1773, atol=1e-2)
