@@ -42,7 +42,7 @@ class MCSimulation(object):
     integrators : list of Integrator objects
         A list of  Integrator objects that generate and accept or reject trial
         moves.
-    potentials : sequence of Potentail objects
+    potential : a pairwise potential object
         A list of potential objects that calculate pair potentials given a
         squared distance.
     tune : bool
@@ -61,7 +61,7 @@ class MCSimulation(object):
         self.integrators = []
         self._log_index = CounterIndex()
 
-    def run(self, steps):
+    def run(self, steps, supress_output=False):
         '''Runs the simulation for `steps` steps.
 
         Also logs data for each `self.frequency` steps. Prints log data to
@@ -83,7 +83,8 @@ class MCSimulation(object):
             for i, integrator in enumerate(self.integrators):
                 self.step += 1
                 acceptance_rate = self.steps_accepted[i] / self.step
-                accepted, delta_e = integrator(self.particles,
+                accepted, delta_e = integrator(self.potential,
+                                               self.particles,
                                                self.box,
                                                acc_rate=acceptance_rate,
                                                tune_displacement=self.tune)
@@ -91,7 +92,7 @@ class MCSimulation(object):
                     self.steps_accepted[i] += 1
                     self.energy += delta_e
                 if self.step % self.frequency == 0:
-                    self.print_log()
+                    self.print_log(supress_output)
                     self._update_log()
 
     def run_upto(self, step):
@@ -195,10 +196,9 @@ class MCSimulation(object):
         be done at initialization though can be called at any time.
         '''
         e_total = 0
-        for i in np.arange(self.particles.num_particles):
-            rij2 = self.box.minimum_image_distance(
-                self.particles.coordinates[i],
-                self.particles.coordinates[i+1:]
+        for i in np.arange(self.particles.num_particles - 1):
+            rij2 = self.box.minimum_image_distance(0,
+                    self.particles.coordinates[i:]
             )
             e_total += self.potential(rij2)
         return e_total + self.potential.cutoff_correction(
@@ -220,10 +220,11 @@ class MCSimulation(object):
     def tune(self):
         return self.step % self.frequency == 0 if self._tuning else False
 
-    def print_log(self):
+    def print_log(self, supress_output=False):
         '''Print out current step, energy, and integrator acceptance rates.'''
         format_str = 'Step {}, Energy {}, Acceptance Rates {}'
         accepted_rates = np.array(self.steps_accepted) / self.step
-        print(format_str.format(self.step,
-                                self.energy / self.particles.num_particles,
-                                accepted_rates))
+        if not supress_output:
+            print(format_str.format(self.step,
+                                    self.energy / self.particles.num_particles,
+                                    accepted_rates))
