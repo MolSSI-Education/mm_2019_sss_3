@@ -7,6 +7,7 @@ class Box:
     ----------
     box_dim : np.array
         The dimensional lengths of the box, should be a numpy array ([x, y, z]).
+        With shape (1, 3).
 
     Returns
     -------
