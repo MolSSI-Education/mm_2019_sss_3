@@ -40,11 +40,9 @@ class Integrator:
     
     def __init__(self,
                  beta,
-                 pair_energy_object,
                  low_acceptance=0.38,
                  high_acceptance=0.42,
                  max_displacement=0.1):
-        self.pair_energy_object = pair_energy_object
         self.beta = beta
         self.low_acceptance = low_acceptance
         self.high_acceptance = high_acceptance
@@ -170,14 +168,16 @@ class Integrator:
         random_displacement = (2.0 * np.random.rand(3) - 1.0) * \
             self.max_displacement
 
-        old_energy = self.get_particle_energy(particles,
+        old_energy = self.get_particle_energy(potential,
+                                              particles,
                                               box,
                                               i_particle)
         proposed_coordinates = particles.coordinates.copy()
         proposed_coordinates[i_particle] += random_displacement
         proposed_particles = mcpy.particles.Particles(proposed_coordinates)
 
-        new_energy = self.get_particle_energy(proposed_particles,
+        new_energy = self.get_particle_energy(potential,
+                                              proposed_particles,
                                               box,
                                               i_particle)
         delta_e = new_energy - old_energy
