@@ -1,12 +1,10 @@
 """
-geometry_analysis
-A python package for the MolSSI Software Summer School.
+mcpy
+A python package to performs simple Monte Carlo simulations.
 """
 
 # Add imports here
 
-# from .measure import *
-#from .molecule import *
 
 # handle versioneer
 #versions = get_versions()

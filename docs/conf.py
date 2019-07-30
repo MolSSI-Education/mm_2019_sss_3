@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'mcpy'
-copyright = ("2019, Sabiha Rustam. Project structure based on the "
+copyright = ("2019, Brandon Butler, Brian Nguyen, Van Nguyen, Joel Ricci, Sabiha Rustam, Zilin Song. Project structure based on the "
              "Computational Molecular Science Python Cookiecutter version 1.0")
 author = 'Sabiha Rustam'
 
