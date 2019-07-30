@@ -22,13 +22,14 @@ def test_adjust_displacement(max_displacement, acc_rate, expected_max_displaceme
 def test_accept_or_reject():
     delta_e = -np.log(.9)
     pair_energy_object = 0
+    trials = 10000
     beta = 1
     inte = Integrator(beta, pair_energy_object) 
     n_acc = 0
-    for i in range(1001):
+    for i in range(trials):
         if inte.accept_or_reject(delta_e) == True:
             n_acc += 1
-    p_acc = n_acc / 1000.0
+    p_acc = n_acc / trials 
 
     assert abs( p_acc - 0.9 ) <= 0.01
 

@@ -42,7 +42,7 @@ class MCSimulation(object):
     integrators : list of Integrator objects
         A list of  Integrator objects that generate and accept or reject trial
         moves.
-    potentials : sequence of Potentail objects
+    potential : a pairwise potential object
         A list of potential objects that calculate pair potentials given a
         squared distance.
     tune : bool
@@ -83,7 +83,8 @@ class MCSimulation(object):
             for i, integrator in enumerate(self.integrators):
                 self.step += 1
                 acceptance_rate = self.steps_accepted[i] / self.step
-                accepted, delta_e = integrator(self.particles,
+                accepted, delta_e = integrator(self.potential,
+                                               self.particles,
                                                self.box,
                                                acc_rate=acceptance_rate,
                                                tune_displacement=self.tune)
