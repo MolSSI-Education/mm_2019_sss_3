@@ -20,7 +20,6 @@ def test_adjust_displacement(max_displacement, acc_rate, expected_max_displaceme
 
 def test_accept_or_reject():
     delta_e = -np.log(.9)
-    pair_energy_object = 0
     trials = 10000
     beta = 1
     inte = Integrator(beta, 0.38, 0.42, 0.1)
