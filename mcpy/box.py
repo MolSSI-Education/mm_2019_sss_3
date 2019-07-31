@@ -2,6 +2,24 @@ import numpy as np
 
 
 class Box:
+    """Holds all the information for the Box.
+
+    Parameters
+    ----------
+    box_dims : np.array
+        The dimensional lengths of the box, should be a numpy array ([x, y, z]).
+        With shape (1, 3).
+
+    Returns
+    -------
+    self : Box
+        Returns an instance of itself.
+    
+    Attributes
+    ----------
+    box_dims : np.array
+        The dimensional lengths of the box, should be a numpy array ([x, y, z]).
+    """
     def __init__(self, box_dims):
         self.box_dims = box_dims
 
@@ -33,17 +51,17 @@ class Box:
             coordinates -= self.box_dims * \
                 np.round(coordinates / self.box_dims)
         else:
-            coordinates -= self.box_dims * \
+            coordinates -= self.box_dims[np.newaxis, :] * \
                 np.round(coordinates / self.box_dims[np.newaxis, :])
         return coordinates
 
-    def minimum_image_distance(self, coord_i, coordinates):
+    def minimum_image_distance(self, index, coordinates):
         """Calculate the minimum distance between two atoms.
 
         Parameters
         ----------
-        coord_i : np.array
-            xyz coordinate of the i-th particle.
+        index : int
+            index of the particle to take the minimum images for
 
         coordinates : np.array
             Array of the atomic xyz coordinate for all particles.
@@ -54,8 +72,15 @@ class Box:
             Array of the distances between each i-th particle and remaining
             particles
         """
-        coord_ij = coord_i[np.newaxis, :] - coordinates[
-            coordinates != coord_i].reshape((-1, 3))
+        if index != 0 and index != len(coordinates):
+            coord_ij = coordinates[index, :] - coordinates[:index, :]
+            temp = coordinates[index, :] - coordinates[index + 1:, :]
+            coord_ij = np.concatenate((coord_ij, temp))
+        elif index == len(coordinates):
+            coord_ij = coordinates[index, :] - coordinates[:index, :]
+        elif index == 0:
+            coord_ij = coordinates[index, :] - coordinates[index + 1:, :]
+        
         coord_ij = coord_ij - \
             self.box_dims[np.newaxis, :] * \
             np.round(coord_ij / self.box_dims[np.newaxis, :])
