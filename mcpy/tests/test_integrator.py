@@ -12,9 +12,8 @@ import numpy as np
     (0.3, 0.4, 0.3)
 ])
 def test_adjust_displacement(max_displacement, acc_rate, expected_max_displacement):
-    beta = 1
-    pair_energy_object = 0
-    inte = Integrator(beta, pair_energy_object)
+    beta = 1 
+    inte = Integrator(beta, 0.38, 0.42, max_displacement)
     calculated_max_displacement = inte.adjust_displacement(max_displacement, acc_rate)
 
     assert np.isclose(calculated_max_displacement, expected_max_displacement)
@@ -24,7 +23,7 @@ def test_accept_or_reject():
     pair_energy_object = 0
     trials = 10000
     beta = 1
-    inte = Integrator(beta, pair_energy_object) 
+    inte = Integrator(beta, 0.38, 0.42, 0.1)
     n_acc = 0
     for i in range(trials):
         if inte.accept_or_reject(delta_e) == True:

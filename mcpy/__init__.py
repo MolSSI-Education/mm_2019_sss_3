@@ -1,13 +1,9 @@
 """
-mcpy
-A python package to performs simple Monte Carlo simulations.
+Mcpy -- a simple Monte Carlo simulation package.
+A python package for the MolSSI Software Summer School.
 """
-
-# Add imports here
-
-
-# handle versioneer
-#versions = get_versions()
-#__version__ = versions['version']
-#__git_revision__ = versions['full-revisionid']
-#del get_versions, versions
+import mcpy.particles
+import mcpy.box
+import mcpy.integrator
+import mcpy.pairwise
+import mcpy.mcsimulation
