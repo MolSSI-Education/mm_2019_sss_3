@@ -19,7 +19,7 @@ def mcsimulation():
     part = mcpy.particles.Particles.from_random(num_particles=num_part,
                                                 box_dims=box.box_dims)
     lj = mcpy.pairwise.LJ(cutoff=3.)
-    intg = mcpy.integrator.Integrator(1/reduced_temperature, lj)
+    intg = mcpy.integrator.Integrator(1/reduced_temperature)
     mc = mcpy.mcsimulation.MCSimulation()
     mc.add_integrator(intg)
     mc.add_box(box)
@@ -41,4 +41,4 @@ def test_energy_convergence(mcsimulation):
     average_energy = np.mean(mcsimulation.energies[
         mcsimulation.steps > 499000]) / mcsimulation.particles.num_particles
     # assert that energy converges to NIST values
-    assert np.isclose(average_energy, 6.1773, atol=1e-2)
+    assert np.isclose(average_energy, -6.1773, atol=2e-1)
