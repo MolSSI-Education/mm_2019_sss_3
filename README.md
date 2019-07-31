@@ -1,15 +1,15 @@
-geometry_analysis
+mcpy
 ==============================
 [//]: # (Badges)
-[![Build Status](https://travis-ci.org/sabiharustam/analysis_package.svg?branch=master)](https://travis-ci.org/sabiharustam/analysis_package)
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/REPLACE_WITH_APPVEYOR_LINK/branch/master?svg=true)](https://ci.appveyor.com/project/REPLACE_WITH_OWNER_ACCOUNT/geometry_analysis/branch/master)
-[![codecov](https://codecov.io/gh/sabiharustam/analysis_package/branch/master/graph/badge.svg)](https://codecov.io/gh/sabiharustam/analysis_package)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.org/MolSSI-Education/mm_2019_sss_3.svg?branch=master)](https://travis-ci.org/MolSSI-Education/mm_2019_sss_3)
 
-TA python package for the MolSSI Software Summer School.
+Developing Metropolis Monte Carlo program.
 
 ### Copyright
 
-Copyright (c) 2019, Sabiha Rustam
+Copyright (c) 2019, Brandon Butler, Brian Nguyen, Van Nguyen, Joel Ricci, 
+Sabiha Rustam, Zilin Song.
 
 
 #### Acknowledgements
