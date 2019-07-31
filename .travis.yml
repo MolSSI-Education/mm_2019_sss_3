@@ -42,7 +42,7 @@ install:
 
 
 script:
-  - pytest -v --cov=geometry_analysis geometry_analysis/tests/
+  - pytest -v --cov=mcpy mcpy/tests/
 
 notifications:
     email: false
