@@ -83,7 +83,7 @@ class LJ(PairwisePotential):
 
     """
 
-        volume = box_object.volume
+        volume = box_object#.volume
         sig_by_cutoff3 = np.power(self.sigma/self._cutoff, 3)
         sig_by_cutoff9 = np.power(sig_by_cutoff3, 3)
         e_correction = sig_by_cutoff9 - 3.0 * sig_by_cutoff3

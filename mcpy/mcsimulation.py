@@ -202,9 +202,8 @@ class MCSimulation(object):
             )
             e_total += self.potential(rij2)
         return e_total + self.potential.cutoff_correction(
-            self.box,
+            self.box.volume,
             self.particles.num_particles)
-
     def check_state(self):
         '''Raises a RuntimeError if self is not ready to run.'''
         if self.integrators == list():
